@@ -2,9 +2,25 @@
 
 ## Setup Instructions
 
-1.In the root directory run `composer install`
+1. In the root directory run `composer install`
 
-2.Make sure the directory is running somewhere with apache 2.0 and PHP 7
+2. Make sure the directory is running somewhere with apache 2.0 and PHP 7
+
+3. Update the configFile.ini with the correct information in the following format:
+[database]
+
+host=
+
+user=
+
+pass=
+
+dbname=
+
+
+[crypto]
+
+salt = 
 
 
 ## Don't have composer?
