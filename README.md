@@ -3,6 +3,7 @@
 ## Setup Instructions
 
 1.In the root directory run `composer install`
+
 2.Make sure the directory is running in apache 2.0
 
 
