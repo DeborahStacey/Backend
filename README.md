@@ -4,7 +4,7 @@
 
 1.In the root directory run `composer install`
 
-2.Make sure the directory is running in apache 2.0 with PHP 7
+2.Make sure the directory is running somewhere with apache 2.0 and PHP 7
 
 
 ## Don't have composer?
