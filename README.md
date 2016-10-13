@@ -6,7 +6,7 @@
 
 2. Make sure the directory is running somewhere with apache 2.0 and PHP 7
 
-3. Update the configFile.ini with the correct information in the following format:
+3. Update the config/configFile.ini with the correct information in the following format:
 
 [database]
 
