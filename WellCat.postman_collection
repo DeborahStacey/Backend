@@ -1,0 +1,35 @@
+{
+	"id": "9b2db1ce-2a9a-2996-74e1-9d5650da2fb9",
+	"name": "WellCat",
+	"description": "",
+	"order": [
+		"2c723a05-9c84-1fa7-85a1-f726cdb7bcf8"
+	],
+	"folders": [],
+	"timestamp": 1475760848798,
+	"owner": "744928",
+	"public": false,
+	"published": false,
+	"requests": [
+		{
+			"id": "2c723a05-9c84-1fa7-85a1-f726cdb7bcf8",
+			"headers": "",
+			"url": "http://localhost/wellcat/api.php/",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "9b2db1ce-2a9a-2996-74e1-9d5650da2fb9",
+			"data": null,
+			"dataMode": "params",
+			"name": "Get All Endpoints",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1475761191526,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		}
+	]
+}
