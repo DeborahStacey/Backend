@@ -1,0 +1,58 @@
+<?php
+namespace WellCat\Providers;
+
+use Silex\Application;
+use Silex\ControllerCollection;
+use Silex\ControllerProviderInterface;
+use Silex\ServiceProviderInterface;
+use WellCat\Controllers\UserController;
+use WellCat\JsonResponse;
+
+class UserControllerProvider implements ControllerProviderInterface, ServiceProviderInterface
+{
+
+    /**
+     * Registers
+     */
+    public function register(Application $app)
+    {
+        $app['api.user'] = $app->share(function () use ($app) {
+            return new UserController($app);
+        });
+    }
+
+    public function boot(Application $app)
+    {
+
+    }
+
+    /**
+     * Returns routes to connect to the given application.
+     *
+     * @param Application $app An Application instance
+     *
+     * @return ControllerCollection A ControllerCollection instance
+     */
+    public function connect(Application $app)
+    {
+        //Will be used as a before case if needed. But still needs to be created.
+        //
+        //  $requireUserAuth = function () use ($app) {
+        //     if ($app['api.auth']->isAuthenticated() == false) {
+        //         $body = array(
+        //             'success' => 'false',
+        //             'error' => 'User not authenticated'
+        //         );
+        //         return new JsonResponse($body, 401);
+        //     }
+        // };
+
+        $controllers = $app['controllers_factory'];
+
+        $controllers
+            ->post('/register', 'api.user:register')
+        ;
+
+        return $controllers;
+    }
+}

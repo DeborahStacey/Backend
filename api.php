@@ -8,6 +8,7 @@ error_reporting(-1);
 require_once __DIR__.'/vendor/autoload.php';
 
 use WellCat\Providers\ApiControllerProvider;
+use WellCat\Providers\UserControllerProvider;
 
 $app = new Silex\Application();
 $app['env'] = 'dev';
@@ -18,4 +19,10 @@ $apiConProv = new ApiControllerProvider();
 $app->register($apiConProv);
 $app->mount('/', $apiConProv);
 
+$userConProv = new UserControllerProvider();
+$app->register($userConProv);
+$app->mount('/user', $userConProv);
+
 $app->run();
+
+?>

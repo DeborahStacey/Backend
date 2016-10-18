@@ -3,33 +3,50 @@
 	"name": "WellCat",
 	"description": "",
 	"order": [
-		"2c723a05-9c84-1fa7-85a1-f726cdb7bcf8"
+		"2c723a05-9c84-1fa7-85a1-f726cdb7bcf8",
+		"2e19716e-0b7d-aa6a-606a-054ff541617d"
 	],
 	"folders": [],
 	"timestamp": 1475760848798,
 	"owner": "744928",
 	"public": false,
-	"published": false,
 	"requests": [
 		{
 			"id": "2c723a05-9c84-1fa7-85a1-f726cdb7bcf8",
 			"headers": "",
-			"url": "http://localhost/wellcat/api.php/",
-			"pathVariables": {},
+			"url": "http://localhost/Backend/api.php/",
 			"preRequestScript": null,
+			"pathVariables": {},
 			"method": "GET",
-			"collectionId": "9b2db1ce-2a9a-2996-74e1-9d5650da2fb9",
 			"data": null,
 			"dataMode": "params",
+			"version": 2,
+			"tests": "var response = JSON.parse(responseBody);\ntests[\"Response time is less than 350ms\"] = responseTime < 600;\ntests[\"Status code is 201\"] = responseCode.code === 201;",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1476817083003,
 			"name": "Get All Endpoints",
 			"description": "",
-			"descriptionFormat": "html",
-			"time": 1475761191526,
-			"version": 2,
-			"responses": [],
-			"tests": null,
+			"collectionId": "9b2db1ce-2a9a-2996-74e1-9d5650da2fb9",
+			"responses": []
+		},
+		{
+			"id": "2e19716e-0b7d-aa6a-606a-054ff541617d",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://localhost/Backend/api.php/user/register",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": "var response = JSON.parse(responseBody);\ntests[\"Response time is less than 350ms\"] = responseTime < 350;\ntests[\"Status code is 200\"] = responseCode.code === 200;\ntests[\"User was registered\"] = response.success === true;\n",
 			"currentHelper": "normal",
-			"helperAttributes": {}
+			"helperAttributes": {},
+			"time": 1476817093254,
+			"name": "Register",
+			"description": "Register",
+			"collectionId": "9b2db1ce-2a9a-2996-74e1-9d5650da2fb9",
+			"rawModeData": "{\n    \"email\": \"fakeEmail@mymail.com\",\n    \"password\": \"Test123\",\n    \"firstName\": \"Devin\",\n    \"lastName\": \"Dagg\"\n}"
 		}
 	]
 }
