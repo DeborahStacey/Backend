@@ -11,7 +11,7 @@ class AuthenticationServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         $app['api.auth'] = $app->share(function () use ($app) {
-            return new AuthenticationService($app, $app['config']['crypto']['salt']);
+            return new AuthenticationService($app, $app['config']['salt']);
         });
     }
 
