@@ -37,7 +37,7 @@ class ApiControllerProvider implements ControllerProviderInterface, ServiceProvi
         $controllers = $app['controllers_factory'];
 
         $controllers
-            ->get('/', 'api.controller:entryPoint')
+            ->get('/', 'api.controller:EndPoints')
         ;
 
         return $controllers;

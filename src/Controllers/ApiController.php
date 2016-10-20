@@ -14,11 +14,11 @@ class ApiController
         $this->app = $app;
     }
 
-    public function entryPoint()
+    public function EndPoints()
     {
         $data = array(
-            '/' => 'Get end points'
-
+            '/' => 'Get end points',
+            '/user/authenticate' => 'Checks to see if current user is authenticated/logged in'
         );
         return new JsonResponse($data, 201);
     }
