@@ -24,5 +24,3 @@ $app->register($userConProv);
 $app->mount('/user', $userConProv);
 
 $app->run();
-
-?>
