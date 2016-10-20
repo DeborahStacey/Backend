@@ -35,22 +35,29 @@ class UserControllerProvider implements ControllerProviderInterface, ServiceProv
      */
     public function connect(Application $app)
     {
-        //Will be used as a before case if needed. But still needs to be created.
-        //
-        //  $requireUserAuth = function () use ($app) {
-        //     if ($app['api.auth']->isAuthenticated() == false) {
-        //         $body = array(
-        //             'success' => 'false',
-        //             'error' => 'User not authenticated'
-        //         );
-        //         return new JsonResponse($body, 401);
-        //     }
-        // };
+         $userAuthenticate = function () use ($app) {
+            if ($app['api.auth']->Authenticated() == false) {
+                $body = array(
+                    'success' => 'false',
+                    'error' => 'User not authenticated'
+                );
+                return new JsonResponse($body, 401);
+            }
+        };
 
         $controllers = $app['controllers_factory'];
 
         $controllers
-            ->post('/register', 'api.user:register')
+            ->get('/authenticate', 'api.user:Authenticate')
+            ->before($userAuthenticate)
+        ;
+
+        $controllers
+            ->post('/register', 'api.user:Register')
+        ;
+
+        $controllers
+            ->post('/login', 'api.user:Login')
         ;
 
         return $controllers;
