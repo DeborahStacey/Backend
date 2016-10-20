@@ -8,7 +8,7 @@ class AuthenticationService
     protected $app;
     private $salt;
 
-    public function __construct(Application $app, string $salt)
+    public function __construct(Application $app, $salt)
     {
         $this->app = $app;
         $this->salt = $salt;
@@ -21,7 +21,7 @@ class AuthenticationService
     }
 
 
-    public function PasswordRequirements(string $password)
+    public function PasswordRequirements($password)
     {
         //TODO:
         //need to input a regular expression formula for passwords we accept and confirm with the rest of
@@ -32,13 +32,13 @@ class AuthenticationService
         return true;
     }
 
-    public function EncryptPassword(string $password)
+    public function EncryptPassword($password)
     {
         $password = $password.$this->salt;
         return password_hash($password, PASSWORD_DEFAULT);
     }
 
-    public function Authenticate(string $email, string $password)
+    public function Authenticate($email, $password)
     {
         if ($this->CheckPassword($email, $password)) {
             $this->app['session']->set('user', $email);
@@ -49,7 +49,7 @@ class AuthenticationService
     }
 
 
-    private function CheckPassword(string $email, string $password)
+    private function CheckPassword($email, $password)
     {
         $prePassword = $password . $this->salt;
         $sql = 'SELECT userid, password FROM account WHERE email = :email';
