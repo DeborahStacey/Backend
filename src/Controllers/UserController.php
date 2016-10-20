@@ -4,8 +4,8 @@ namespace WellCat\Controllers;
 
 use Silex\Application;
 use PDO;
-use WellCat\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use WellCat\JsonResponse;
 
 class UserController
 {
@@ -18,14 +18,23 @@ class UserController
         $this->app['session']->start();
     }
 
-    public function register(Request $request)
+    public function Authenticate()
     {
-        $user = $request->request->get('email');
+        $data = array(
+            'success' => true,
+            'message' => 'Successfully authenticated'
+        );
+        return new JsonResponse($data, 200);
+    }
+
+    public function Register(Request $request)
+    {
+        $email = $request->request->get('email');
         $password = $request->request->get('password');
         $first = $request->request->get('firstName');
         $last = $request->request->get('lastName');
 
-        if (!$user) {
+        if (!$email) {
             return JsonResponse::missingParam('email');
         } elseif (!$password) {
             return JsonResponse::missingParam('password');
@@ -33,7 +42,7 @@ class UserController
             return JsonResponse::missingParam('firstName');
         } elseif (!$last) {
             return JsonResponse::missingParam('lastName');
-        } elseif (!filter_var($user, FILTER_VALIDATE_EMAIL)) {
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return JsonResponse::userError('Invalid email');
         } 
 
@@ -48,7 +57,7 @@ class UserController
         $sql = 'SELECT email FROM account WHERE email = :email';
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
-            ':email' => $user
+            ':email' => $email
         ));
 
         /**
@@ -60,7 +69,7 @@ class UserController
         /**
          * Checks to see if there were any returned values and if so the email already exists
          */
-        else if ($stmt->fetch(PDO::FETCH_ASSOC) != false) {
+        else if ($stmt->fetch(\PDO::FETCH_ASSOC) != false) {
             $body = array(
                 'success' => 'false',
                 'error' => 'Email already in use'
@@ -69,13 +78,13 @@ class UserController
         }
 
 
-        $encryptedPassword = $this->app['api.auth']->encryptPass($password);
+        $encryptedPassword = $this->app['api.auth']->EncryptPassword($password);
         
         $sql = 'INSERT INTO account (email, password, firstname, lastname)
             VALUES (:email, :password, :first, :last)';
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
-            ':email' => $user,
+            ':email' => $email,
             ':password' => $encryptedPassword,
             ':first' => $first,
             ':last' => $last
@@ -85,6 +94,29 @@ class UserController
             return new JsonResponse();
         } else {
             return JsonReponse::userError('Unable to register');
+        }
+    }
+
+
+    public function Login(Request $request)
+    {
+        $email = $request->request->get('email');
+        $password = $request->request->get('password');
+
+        if (!$email) {
+            return JsonResponse::missingParam('email');
+        } elseif (!$password) {
+            return JsonResponse::missingParam('password');
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return JsonResponse::userError('Invalid email');
+        }
+
+        $success = $this->app['api.auth']->Authenticate($email, $password);
+
+        if ($success) {
+            return new JsonResponse();
+        } else {
+            return JsonResponse::authError('Incorrect email or password');
         }
     }
 
