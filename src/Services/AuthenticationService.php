@@ -14,7 +14,14 @@ class AuthenticationService
         $this->salt = $salt;
     }
 
-    public function passwordRequirements(string $password)
+    //checks to see if user session is setup and if so user is logged in.
+    public function Authenticated()
+    {
+        return $this->app['session']->has('user');
+    }
+
+
+    public function PasswordRequirements(string $password)
     {
         //TODO:
         //need to input a regular expression formula for passwords we accept and confirm with the rest of
@@ -25,9 +32,37 @@ class AuthenticationService
         return true;
     }
 
-    public function encryptPass(string $password)
+    public function EncryptPassword(string $password)
     {
         $password = $password.$this->salt;
         return password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    public function Authenticate(string $email, string $password)
+    {
+        if ($this->CheckPassword($email, $password)) {
+            $this->app['session']->set('user', $email);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    private function CheckPassword(string $email, string $password)
+    {
+        $prePassword = $password . $this->salt;
+        $sql = 'SELECT userid, password FROM account WHERE email = :email';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(':email' => $email));
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if ($result == false) {
+            return false;
+        }
+        if (password_verify($prePassword, $result['password'])) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
