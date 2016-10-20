@@ -1,7 +1,6 @@
 <?php
 
 $env = $app['env'];
-$app['config'] = parse_ini_file('./config/configFile.ini', true);
 
 /*
  * Register

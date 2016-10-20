@@ -10,7 +10,7 @@ class DatabaseServiceProvider implements ServiceProviderInterface
     public function register(Application $app)
     {
         $app['db'] = $app->share(function () use ($app) {
-            $dbconfig = $app['config'];
+            $dbconfig = $app['config']['database'];
             $db = new PDO(
                 'pgsql:host='.$dbconfig['host'].';dbname=' . $dbconfig['dbname'],
                 $dbconfig['user'],

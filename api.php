@@ -12,7 +12,7 @@ use WellCat\Providers\UserControllerProvider;
 
 $app = new Silex\Application();
 $app['env'] = 'dev';
-
+require_once __DIR__.'/config/configFile.php';
 require_once __DIR__.'/src/wellCat.php';
 
 $apiConProv = new ApiControllerProvider();
