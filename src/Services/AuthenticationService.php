@@ -17,7 +17,11 @@ class AuthenticationService
     //checks to see if user session is setup and if so user is logged in.
     public function Authenticated()
     {
-        return $this->app['session']->has('user');
+        $sessionUser = $this->app['session']->get('user');
+        
+        return $sessionUser != null
+        && $sessionUser['email'] != null;
+        //&& $sessionUser['userId'] != null;
     }
 
 
@@ -41,18 +45,17 @@ class AuthenticationService
     public function Authenticate($email, $password)
     {
         if ($this->CheckPassword($email, $password)) {
-            $this->app['session']->set('user', $email);
-            return true;
+            //  TODO: improve error handling so we can specifiy whether Authentication failed due to invalid password, or not being able to set session user
+            return $this->SetSessionUser($email);
         } else {
             return false;
         }
     }
 
-
     private function CheckPassword($email, $password)
     {
         $prePassword = $password . $this->salt;
-        $sql = 'SELECT userid, password FROM account WHERE email = :email';
+        $sql = 'SELECT password FROM account WHERE email = :email';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(':email' => $email));
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -64,5 +67,26 @@ class AuthenticationService
         } else {
             return false;
         }
+    }
+
+    private function SetSessionUser($email)
+    {
+        $sql = 'SELECT userid FROM account WHERE email = :email';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(':email' => $email));
+                
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // TODO: probably better to throw an exception if false
+        if ($result == false) {
+            return false;
+        }        
+
+        $this->app['session']->set('user', array(
+            'email' => $email,
+            'userId' => (int)$result['userid'])
+        );
+
+        return true;
     }
 }
