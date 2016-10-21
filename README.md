@@ -2,27 +2,16 @@
 
 ## Setup Instructions
 
-1. In the root directory run `composer install`
+1. Clone the repo using the following command `git clone https://github.com/GuelphOntologyTeam/Backend.git`
 
-2. Make sure the directory is running somewhere with apache 2.0 and PHP 7
+2. Make sure the repo is somewhere with apache 2.0 and PHP 7 enabled such as /var/www/html/ on linux machines or /Library/WebServer/Documents/ on mac
 
-3. Update the config/configFile.ini with the correct information in the following format:
+3. In the root directory run `composer install`
 
-[database]
+4. Update the config/configFile.php with the correct information to connect to a database and the encrptoion key that you are using
 
-host=
+5. You should now be all setup to start using the API and making queries to it. Please refer to the Wiki on github to see a list of available querries you can make to the API. (https://github.com/GuelphOntologyTeam/Backend/wiki)
 
-user=
-
-pass=
-
-dbname=
-
-
-
-[crypto]
-
-salt = 
 
 
 ## Don't have composer?
