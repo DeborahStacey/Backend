@@ -45,9 +45,9 @@ class AuthenticationService
     public function Authenticate($email, $password)
     {
         if ($this->CheckPassword($email, $password)) {
-            //  TODO: improve error handling so we can specifiy whether Authentication failed due to invalid password, or not being able to set session user
             return $this->SetSessionUser($email);
-        } else {
+        } 
+        else {
             return false;
         }
     }
@@ -64,7 +64,8 @@ class AuthenticationService
         }
         if (password_verify($prePassword, $result['password'])) {
             return true;
-        } else {
+        } 
+        else {
             return false;
         }
     }

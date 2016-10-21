@@ -36,13 +36,17 @@ class UserController
 
         if (!$email) {
             return JsonResponse::missingParam('email');
-        } elseif (!$password) {
+        } 
+        elseif (!$password) {
             return JsonResponse::missingParam('password');
-        } elseif (!$first) {
+        } 
+        elseif (!$first) {
             return JsonResponse::missingParam('firstName');
-        } elseif (!$last) {
+        } 
+        elseif (!$last) {
             return JsonResponse::missingParam('lastName');
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        } 
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return JsonResponse::userError('Invalid email');
         } 
 
@@ -92,7 +96,8 @@ class UserController
 
         if ($success) {
             return new JsonResponse();
-        } else {
+        } 
+        else {
             return JsonReponse::userError('Unable to register');
         }
     }
@@ -105,9 +110,11 @@ class UserController
 
         if (!$email) {
             return JsonResponse::missingParam('email');
-        } elseif (!$password) {
+        } 
+        elseif (!$password) {
             return JsonResponse::missingParam('password');
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        } 
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return JsonResponse::userError('Invalid email');
         }
 
@@ -115,7 +122,8 @@ class UserController
 
         if ($success) {
             return new JsonResponse();
-        } else {
+        } 
+        else {
             return JsonResponse::authError('Incorrect email or password');
         }
     }

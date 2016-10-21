@@ -4,6 +4,7 @@ namespace WellCat\Controllers;
 
 use Silex\Application;
 use PDO;
+use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use WellCat\JsonResponse;
 
@@ -14,6 +15,7 @@ class PetController
     public function __construct(\Silex\Application $app)
     {
         $this->app = $app;
+        $this->app['session']->start();
     }
     
     public function Create(Request $request)
@@ -28,43 +30,38 @@ class PetController
         $length = $request->request->get('length');
 
         // Validate parameters
-        if (!$petName)
-        {
+        if (!$petName) {
             return JsonResponse::missingParam('name');
         }
-        else if (!$breed)
-        {
+        elseif (!$breed) {
             return JsonResponse::missingParam('breed');
         }
-        else if (!$gender)
-        {
+        elseif (!$gender) {
             return JsonResponse::missingParam('gender');
         }
-        else if (!$dateOfBirth) // TODO: validate date is in correct format
-        {
+        elseif (!$dateOfBirth) {
             return JsonResponse::missingParam('dateOfBirth');
         }
-        else if (!$weight)
-        {
+        elseif (!$weight) {
             return JsonResponse::missingParam('weight');
         }
-        else if (!$height)
-        {
+        elseif (!$height) {
             return JsonResponse::missingParam('height');
         }
-        else if (!$length)
-        {
+        elseif (!$length) {
             return JsonResponse::missingParam('length');
+        } 
+        elseif(!DateTime::createFromFormat('Y-m-d', $dateOfBirth)) {
+            return JsonResponse::userError('Invalid date.');
         }
 
         // Add pet to database
-        $sql = 'INSERT INTO pet (ownerid, animalId, name, breedId, gender, dateOfBirth, weight, height, length) 
-            VALUES (:ownerId, :animalId, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length)';
+        $sql = 'INSERT INTO pet (ownerid, name, breedId, gender, dateofbirth, weight, height, length) 
+            VALUES (:ownerId, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length)';
 
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
             ':ownerId' => $this->app['session']->get('user')['userId'],
-            ':animalId' => 1, // hardcode to Cat for now 
             ':name' => $petName,
             ':breed' => $breed,
             ':gender' => $gender,
