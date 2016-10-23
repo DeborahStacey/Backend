@@ -20,8 +20,8 @@ class AuthenticationService
         $sessionUser = $this->app['session']->get('user');
         
         return $sessionUser != null
-        && $sessionUser['email'] != null;
-        //&& $sessionUser['userId'] != null;
+        && $sessionUser['email'] != null
+        && $sessionUser['userId'] != null;
     }
 
 

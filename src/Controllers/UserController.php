@@ -33,19 +33,38 @@ class UserController
         $password = $request->request->get('password');
         $first = $request->request->get('firstName');
         $last = $request->request->get('lastName');
+        $address = $request->request->get('address');
 
         if (!$email) {
             return JsonResponse::missingParam('email');
-        } 
+        }
         elseif (!$password) {
             return JsonResponse::missingParam('password');
-        } 
+        }
         elseif (!$first) {
             return JsonResponse::missingParam('firstName');
-        } 
+        }
         elseif (!$last) {
             return JsonResponse::missingParam('lastName');
-        } 
+        }
+        elseif (!$address) {
+            return JsonResponse::missingParam('address');
+        }
+        elseif (!$address['street']) {
+            return JsonResponse::missingParam('address(street)');
+        }
+        elseif (!$address['unit']) {
+            return JsonResponse::missingParam('address(unit)');
+        }
+        elseif (!$address['city']) {
+            return JsonResponse::missingParam('address(city)');
+        }
+        elseif (!$address['postalCode']) {
+            return JsonResponse::missingParam('address(postalCode)');
+        }
+        elseif (!$address['locationID']) {
+            return JsonResponse::missingParam('address(locationID)');
+        }
         elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return JsonResponse::userError('Invalid email');
         } 
@@ -64,15 +83,11 @@ class UserController
             ':email' => $email
         ));
 
-        /**
-         * if success is not good the querry failed.
-         */
+        //if success is not good the querry failed.
         if (!$success) {
             return JsonReponse::userError('Unable to register');
         } 
-        /**
-         * Checks to see if there were any returned values and if so the email already exists
-         */
+        //Checks to see if there were any returned values and if so the email already exists
         else if ($stmt->fetch(\PDO::FETCH_ASSOC) != false) {
             $body = array(
                 'success' => 'false',
@@ -81,13 +96,19 @@ class UserController
             return new JsonResponse($body, 404);
         }
 
+        //attempts to register given user address if fails returns -1. If successful returns a value >= 0
+        $addressID = $this->app['api.address']->Register($address);
+        if ($addressID == -1) {
+            return JsonResponse::userError('Unable to register address');
+        }
 
         $encryptedPassword = $this->app['api.auth']->EncryptPassword($password);
         
-        $sql = 'INSERT INTO account (email, password, firstname, lastname)
-            VALUES (:email, :password, :first, :last)';
+        $sql = 'INSERT INTO account (addressid, email, password, firstname, lastname)
+            VALUES (:addressid, :email, :password, :first, :last)';
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
+            ':addressid' => (int)$addressID,
             ':email' => $email,
             ':password' => $encryptedPassword,
             ':first' => $first,

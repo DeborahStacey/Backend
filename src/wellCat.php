@@ -23,6 +23,7 @@ $app->register(new \WellCat\Providers\DatabaseServiceProvider());
 $app['db']->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 
+$app->register(new \WellCat\Providers\AddressServiceProvider());
 $app->register(new \WellCat\Providers\AuthenticationServiceProvider());
 
 //Convert json bodies to objects
