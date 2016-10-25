@@ -7,13 +7,14 @@
 		"01eadaf0-c015-8c9d-7a0d-ca2fbfe95036",
 		"d105677f-228d-8e36-96d1-98958edf0a9c",
 		"16a58cc8-0c6e-fb28-0317-986a9d571cff",
-		"d2cba944-b308-5c98-ba6a-291a8199e504"
+		"d2cba944-b308-5c98-ba6a-291a8199e504",
+		"f3f8ac20-15c6-1643-62bc-7904bd0d8837",
+		"23fd29b4-8413-c0ee-e349-ba3119686780"
 	],
 	"folders": [],
 	"timestamp": 1475760848798,
 	"owner": "744928",
 	"public": false,
-	"hasRequests": true,
 	"requests": [
 		{
 			"id": "01eadaf0-c015-8c9d-7a0d-ca2fbfe95036",
@@ -49,6 +50,25 @@
 			"name": "Authenticated",
 			"description": "Authentication check",
 			"collectionId": "ddf7cacb-91dd-f20f-fc4f-69a118b401d0",
+			"rawModeData": "{\n    \"email\": \"fakeEmail@mymail.com\",\n    \"password\": \"Test123\"\n}"
+		},
+		{
+			"id": "23fd29b4-8413-c0ee-e349-ba3119686780",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://localhost/Backend/api.php/address/1/locations",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"tests": "var response = JSON.parse(responseBody);\ntests[\"Response time is less than 400ms\"] = responseTime < 400;\ntests[\"Status code is 200\"] = responseCode.code === 200;\ntests[\"User was authenticated\"] = response.success === true;\n",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1477420994371,
+			"name": "Locations (Canada)",
+			"description": "Getting list of locations in Canada",
+			"collectionId": "ddf7cacb-91dd-f20f-fc4f-69a118b401d0",
+			"responses": [],
 			"rawModeData": "{\n    \"email\": \"fakeEmail@mymail.com\",\n    \"password\": \"Test123\"\n}"
 		},
 		{
@@ -106,6 +126,25 @@
 			"description": "",
 			"collectionId": "ddf7cacb-91dd-f20f-fc4f-69a118b401d0",
 			"responses": []
+		},
+		{
+			"id": "f3f8ac20-15c6-1643-62bc-7904bd0d8837",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://localhost/Backend/api.php/address/countries",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"tests": "var response = JSON.parse(responseBody);\ntests[\"Response time is less than 400ms\"] = responseTime < 400;\ntests[\"Status code is 200\"] = responseCode.code === 200;\ntests[\"User was authenticated\"] = response.success === true;\n",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1477420906003,
+			"name": "Countries",
+			"description": "Getting list of countries",
+			"collectionId": "ddf7cacb-91dd-f20f-fc4f-69a118b401d0",
+			"responses": [],
+			"rawModeData": "{\n    \"email\": \"fakeEmail@mymail.com\",\n    \"password\": \"Test123\"\n}"
 		}
 	]
 }
