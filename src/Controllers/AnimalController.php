@@ -47,8 +47,7 @@ class AnimalController
         if (!$animalId) {
             return JsonResponse::missingParam('animalId');
         }
-
-        if (!is_numeric($animalId)) {
+        elseif (!is_numeric($animalId)) {
             return JsonResponse::userError('Invalid animal type id '.$animalId);
         }
 

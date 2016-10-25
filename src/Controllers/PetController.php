@@ -74,12 +74,16 @@ class PetController
             ':length' => $length
         ));
 
-        if ($success)
-        {
+        if ($success) {
             return new JsonResponse();
-        } else
-        {
-            return JsonReponse::userError('Unable to register pet.');
+        } 
+        else {
+            $body = array(
+                'success' => false,
+                'error' => 'Unable to register pet.'
+            );
+            
+            return JsonReponse($body, 500);
         }
     }
 }
