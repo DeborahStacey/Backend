@@ -40,13 +40,13 @@ class AddressController
 
     }
 
-    public function Locations(Request $request, $city)
+    public function Locations(Request $request, $country)
     {
 
         $sql ='SELECT locationid AS id, locationname AS name FROM location WHERE countryid = :countryID';
 
         $stmt= $this->app['db']->prepare($sql);
-        $stmt->execute(array( ':countryID' => $city));
+        $stmt->execute(array( ':countryID' => $country));
 
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         

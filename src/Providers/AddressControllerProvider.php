@@ -42,7 +42,7 @@ class AddressControllerProvider implements ControllerProviderInterface, ServiceP
         ;
 
         $controllers
-            ->get('/{city}/locations', 'api.addr:Locations')
+            ->get('/{country}/locations', 'api.addr:Locations')
         ;
 
         return $controllers;

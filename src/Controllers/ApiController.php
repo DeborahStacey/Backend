@@ -18,6 +18,8 @@ class ApiController
     {
         $data = array(
             '/' => 'Get end points',
+            '/address/countries' => 'Gets list of countrys and id\'s',
+            '/address/{countryID}/locations' => 'Gets list of locations in a given country',
             '/user/authenticate' => 'Checks to see if current user is authenticated/logged in'
         );
         return new JsonResponse($data, 201);
