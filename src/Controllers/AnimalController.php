@@ -41,6 +41,10 @@ class AnimalController
             return JsonResponse::missingParam('animalId');
         }
 
+        if (!is_numeric($animalId)) {
+            return JsonResponse::userError('Invalid animal type id '.$animalId);
+        }
+
         // Get animals from database
         $sql = 'SELECT * FROM breed WHERE animaltypeid = :animaltypeid';
 
@@ -53,7 +57,7 @@ class AnimalController
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             if ($result == false) {
-                return JsonReponse::userError('Unable to retreive breeds for specified animal type');
+                return JsonResponse::userError('Unable to retreive breeds for specified animal type');
             }
 
             return new JsonResponse($result);
