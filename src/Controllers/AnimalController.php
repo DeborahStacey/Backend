@@ -25,7 +25,12 @@ class AnimalController
         if ($success) {
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-            return new JsonResponse($result);
+            $body = array(
+                'animals' => $result,
+                'success' => true
+            );
+
+            return new JsonResponse($body, 200);
         } 
         else {
             $body = array(
@@ -67,7 +72,12 @@ class AnimalController
                 return new JsonResponse ($body, 403);
             }
 
-            return new JsonResponse($result);
+            $body = array(
+                'breeds' => $result,
+                'success' => true
+            );
+
+            return new JsonResponse($body, 200);
         } 
         else {
             $body = array(
