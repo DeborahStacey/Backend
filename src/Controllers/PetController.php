@@ -17,11 +17,12 @@ class PetController
         $this->app = $app;
         $this->app['session']->start();
     }
-    
+
     public function Create(Request $request)
     {
         // Get parameters
         $petName = $request->request->get('name');
+        $animalTypeId = $request->request->get('animalTypeId');
         $breed = $request->request->get('breed');
         $gender = $request->request->get('gender');
         $dateOfBirth = $request->request->get('dateOfBirth');
@@ -50,13 +51,19 @@ class PetController
         }
         elseif (!$length) {
             return JsonResponse::missingParam('length');
-        } 
-        elseif(!DateTime::createFromFormat('Y-m-d', $dateOfBirth)) {
+        }
+        elseif (!DateTime::createFromFormat('Y-m-d', $dateOfBirth)) {
             return JsonResponse::userError('Invalid date.');
+        }
+        elseif (!$this->app['api.animalservice']->CheckAnimalExists($animalTypeId)) {
+            return JsonResponse::userError('Invalid animal type.');
+        }
+        elseif (!$this->app['api.animalservice']->CheckAnimalBreedExists($animalTypeId, $breed)) {
+            return JsonResponse::userError('Invalid breed for given animal type.');
         }
 
         // Add pet to database
-        $sql = 'INSERT INTO pet (ownerid, name, breedId, gender, dateofbirth, weight, height, length) 
+        $sql = 'INSERT INTO pet (ownerid, name, breedId, gender, dateofbirth, weight, height, length)
             VALUES (:ownerId, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length)';
 
         $stmt = $this->app['db']->prepare($sql);
@@ -71,12 +78,12 @@ class PetController
             ':length' => $length
         ));
 
-        if ($success) 
+        if ($success)
         {
             return new JsonResponse();
-        } else 
+        } else
         {
-            return JsonReponse::userError('Unable to register pet');
+            return JsonReponse::userError('Unable to register pet.');
         }
     }
 }

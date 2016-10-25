@@ -57,12 +57,12 @@ class AnimalController
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             if ($result == false) {
-                return JsonResponse::userError('Unable to retreive breeds for specified animal type');
+                return JsonResponse::userError('Unable to retreive breeds for specified animal type.');
             }
 
             return new JsonResponse($result);
         } else {
-            return JsonReponse::userError('Unable to retreive breeds for specified animal type');
+            return JsonReponse::userError('Unable to retreive breeds for specified animal type.');
         }
     }
 }
