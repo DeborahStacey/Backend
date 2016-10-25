@@ -25,6 +25,7 @@ $app['db']->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $app->register(new \WellCat\Providers\AddressServiceProvider());
 $app->register(new \WellCat\Providers\AuthenticationServiceProvider());
+$app->register(new \WellCat\Providers\AnimalServiceProvider());
 
 //Convert json bodies to objects
 $app->before(function (\Symfony\Component\HttpFoundation\Request $request) {

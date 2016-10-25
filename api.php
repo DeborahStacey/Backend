@@ -11,6 +11,7 @@ use WellCat\Providers\ApiControllerProvider;
 use WellCat\Providers\UserControllerProvider;
 use WellCat\Providers\PetControllerProvider;
 use WellCat\Providers\AddressControllerProvider;
+use WellCat\Providers\AnimalControllerProvider;
 
 $app = new Silex\Application();
 $app['env'] = 'dev';
@@ -32,5 +33,9 @@ $app->mount('/pet', $petConProv);
 $addrConProv = new AddressControllerProvider();
 $app->register($addrConProv);
 $app->mount('/address', $addrConProv);
+
+$animalConProv = new AnimalControllerProvider();
+$app->register($animalConProv);
+$app->mount('/animal', $animalConProv);
 
 $app->run();
