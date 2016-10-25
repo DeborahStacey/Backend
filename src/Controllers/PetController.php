@@ -22,7 +22,6 @@ class PetController
     {
         // Get parameters
         $petName = $request->request->get('name');
-        $animalTypeId = $request->request->get('animalTypeId');
         $breed = $request->request->get('breed');
         $gender = $request->request->get('gender');
         $dateOfBirth = $request->request->get('dateOfBirth');
@@ -55,11 +54,8 @@ class PetController
         elseif (!DateTime::createFromFormat('Y-m-d', $dateOfBirth)) {
             return JsonResponse::userError('Invalid date.');
         }
-        elseif (!$this->app['api.animalservice']->CheckAnimalExists($animalTypeId)) {
-            return JsonResponse::userError('Invalid animal type.');
-        }
-        elseif (!$this->app['api.animalservice']->CheckAnimalBreedExists($animalTypeId, $breed)) {
-            return JsonResponse::userError('Invalid breed for given animal type.');
+        elseif (!$this->app['api.animalservice']->CheckBreedExists($breed)) {
+            return JsonResponse::userError('Invalid breed.');
         }
 
         // Add pet to database

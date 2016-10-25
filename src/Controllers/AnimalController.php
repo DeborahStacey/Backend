@@ -25,13 +25,15 @@ class AnimalController
         if ($success) {
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-            if ($result == false) {
-                return JsonReponse::userError('Unable to retreive animals');
-            }
-
             return new JsonResponse($result);
-        } else {
-            return JsonReponse::userError('Unable to retreive animals');
+        } 
+        else {
+            $body = array(
+                'success' => false,
+                'error' => "Unable to get animals."
+            );
+
+            return new JsonResponse ($body, 500);
         }
     }
 
@@ -45,7 +47,7 @@ class AnimalController
             return JsonResponse::userError('Invalid animal type id '.$animalId);
         }
 
-        // Get animals from database
+        // Get breeds from database
         $sql = 'SELECT breedId as id, name FROM breed WHERE animaltypeid = :animaltypeid';
 
         $stmt = $this->app['db']->prepare($sql);
@@ -56,13 +58,24 @@ class AnimalController
         if ($success) {
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-            if ($result == false) {
-                return JsonResponse::userError('Unable to retreive breeds for specified animal type.');
+            if (!$result) {
+                $body = array(
+                    'success' => false,
+                    'error' => "Unable to retrieve breeds for specified animal type."
+                );
+
+                return new JsonResponse ($body, 403);
             }
 
             return new JsonResponse($result);
-        } else {
-            return JsonReponse::userError('Unable to retreive breeds for specified animal type.');
+        } 
+        else {
+            $body = array(
+                'success' => false,
+                'error' => "Unable to retrieve breeds."
+            );
+
+            return new JsonResponse ($body, 500);
         }
     }
 }

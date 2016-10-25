@@ -13,37 +13,16 @@ class AnimalService
         $this->app = $app;
     }
 
-    public function CheckAnimalExists($animalTypeId)
+    public function CheckBreedExists($breedId)
     {
-        if (!$animalTypeId || !is_numeric($animalTypeId)) {
+        if (!$breedId || !is_numeric($breedId)) {
             return false;
         }
 
-        $sql = 'SELECT NULL FROM animal WHERE animaltypeid = :animaltypeid';
+        $sql = 'SELECT NULL FROM breed WHERE breedid = :breedid';
 
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
-            ':animaltypeid' => $animalTypeId,
-        ));
-
-        if ($success) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function CheckAnimalBreedExists($animalTypeId, $breedId)
-    {
-        if (!$animalTypeId || !is_numeric($animalTypeId) || !$breedId || !is_numeric($breedId)) {
-            return false;
-        }
-
-        $sql = 'SELECT NULL FROM breed WHERE animaltypeid = :animaltypeid AND breedid = :breedid';
-
-        $stmt = $this->app['db']->prepare($sql);
-        $success = $stmt->execute(array(
-          ':animaltypeid' => $animalTypeId,
           ':breedid' => $breedId
         ));
 
