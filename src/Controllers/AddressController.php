@@ -26,7 +26,7 @@ class AddressController
 
         if($result){
             $body = array( 'countries' => $result);
-            $body['success'] = 'true';
+            $body['success'] = true;
             return new JsonResponse($body, 200);
         }
         else{
@@ -52,7 +52,7 @@ class AddressController
         
         if($result){
                 $body = array( 'locations' => $result);
-                $body['success'] = 'true';
+                $body['success'] = true;
                 return new JsonResponse($body, 200);
         }
         else{
