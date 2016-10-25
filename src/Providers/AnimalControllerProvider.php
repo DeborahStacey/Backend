@@ -16,7 +16,7 @@ class AnimalControllerProvider  implements ControllerProviderInterface, ServiceP
      */
     public function register(Application $app)
     {
-        $app['api.Animal'] = $app->share(function () use ($app) {
+        $app['api.animal'] = $app->share(function () use ($app) {
             return new AnimalController($app);
         });
     }
@@ -37,13 +37,13 @@ class AnimalControllerProvider  implements ControllerProviderInterface, ServiceP
         $controllers = $app['controllers_factory'];
 
         $controllers
-            ->get('/animals', 'api.Animal:GetAnimals')
+            ->get('/animals', 'api.animal:GetAnimals')
         ;
 
         $controllers
-            ->get('/{animalId}/breeds', 'api.Animal:GetBreedsByAnimalId')
+            ->get('/{animalId}/breeds', 'api.animal:GetBreedsByAnimalId')
         ;
-        
+
         return $controllers;
     }
 }

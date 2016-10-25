@@ -17,7 +17,7 @@ class AnimalController
     public function GetAnimals()
     {
         // Get animals from database
-        $sql = 'SELECT * FROM animal';
+        $sql = 'SELECT animaltypeid AS id, name FROM animal';
 
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute();
@@ -46,7 +46,7 @@ class AnimalController
         }
 
         // Get animals from database
-        $sql = 'SELECT * FROM breed WHERE animaltypeid = :animaltypeid';
+        $sql = 'SELECT breedId as id, name FROM breed WHERE animaltypeid = :animaltypeid';
 
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
