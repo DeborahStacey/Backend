@@ -18,16 +18,16 @@ class AnimalController
     {
         // Get animals from database
         $sql = 'SELECT animaltypeid AS id, name FROM animal';
-
         $stmt = $this->app['db']->prepare($sql);
-        $success = $stmt->execute();
+        $stmt->execute();
 
-        if ($success) {
-            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
+
+        if ($result) {
             $body = array(
-                'animals' => $result,
-                'success' => true
+                'success' => true,
+                'animals' => $result
             );
 
             return new JsonResponse($body, 200);
@@ -53,27 +53,17 @@ class AnimalController
 
         // Get breeds from database
         $sql = 'SELECT breedId as id, name FROM breed WHERE animaltypeid = :animaltypeid';
-
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
             ':animaltypeid' => $animalId
         ));
 
-        if ($success) {
-            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-            if (!$result) {
-                $body = array(
-                    'success' => false,
-                    'error' => "Unable to retrieve breeds for specified animal type."
-                );
-
-                return new JsonResponse ($body, 403);
-            }
-
+        if ($result) {
             $body = array(
-                'breeds' => $result,
-                'success' => true
+                'success' => true,
+                'breeds' => $result
             );
 
             return new JsonResponse($body, 200);
@@ -82,6 +72,34 @@ class AnimalController
             $body = array(
                 'success' => false,
                 'error' => "Unable to retrieve breeds."
+            );
+
+            return new JsonResponse ($body, 500);
+        }
+    }
+
+    public function GetGenders()
+    {
+        // Get genders from database
+        $sql = 'SELECT genderid AS id, name FROM gender';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+
+        if ($result) {
+            $body = array(
+                'success' => true,
+                'genders' => $result
+            );
+
+            return new JsonResponse($body, 200);
+        } 
+        else {
+            $body = array(
+                'success' => false,
+                'error' => "Unable to get animals."
             );
 
             return new JsonResponse ($body, 500);

@@ -18,50 +18,49 @@ class AddressController
     public function Countries()
     {
         $sql ='SELECT countryid AS id, countryname AS name FROM country';
-
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute();
 
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        if($result){
-            $body = array( 'countries' => $result);
-            $body['success'] = true;
+        if ($result) {
+            $body = array(
+                'success' => true,
+                'countries' => $result
+            );
             return new JsonResponse($body, 200);
         }
-        else{
-                $body = array( 
-                        'success' => false,
-                        'error' => 'no results for that id'   
-                );
-
-                return new JsonResponse($body, 404);
-            }
-
+        else {
+            $body = array( 
+                'success' => false,
+                'error' => 'no results for that id'   
+            );
+            return new JsonResponse($body, 404);
+        }
     }
 
     public function Locations(Request $request, $country)
     {
 
         $sql ='SELECT locationid AS id, locationname AS name FROM location WHERE countryid = :countryID';
-
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute(array( ':countryID' => $country));
 
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if($result){
-                $body = array( 'locations' => $result);
-                $body['success'] = true;
-                return new JsonResponse($body, 200);
+
+        if ($result) {
+            $body = array( 
+                'success' => true,
+                'locations' => $result
+            );
+            return new JsonResponse($body, 200);
         }
-        else{
+        else {
             $body = array( 
                 'success' => false,
                 'error' => 'no results for that id' 
-                );
-
-                return new JsonResponse($body, 404);
+            );
+            return new JsonResponse($body, 404);
         }
     }
 }

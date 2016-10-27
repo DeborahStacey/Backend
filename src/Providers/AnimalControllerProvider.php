@@ -44,6 +44,10 @@ class AnimalControllerProvider  implements ControllerProviderInterface, ServiceP
             ->get('/{animalId}/breeds', 'api.animal:GetBreedsByAnimalId')
         ;
 
+        $controllers
+            ->get('/genders', 'api.animal:GetGenders')
+        ;
+
         return $controllers;
     }
 }

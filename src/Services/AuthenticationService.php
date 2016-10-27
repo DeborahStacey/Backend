@@ -62,6 +62,7 @@ class AuthenticationService
         if ($result == false) {
             return false;
         }
+        
         if (password_verify($prePassword, $result['password'])) {
             return true;
         } 

@@ -90,7 +90,7 @@ class UserController
         //Checks to see if there were any returned values and if so the email already exists
         else if ($stmt->fetch(\PDO::FETCH_ASSOC) != false) {
             $body = array(
-                'success' => 'false',
+                'success' => false,
                 'error' => 'Email already in use'
             );
             return new JsonResponse($body, 404);
