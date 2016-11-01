@@ -71,7 +71,7 @@ class AuthenticationService
         return (int)$result['userid'];
     }
 
-    private function CheckPassword($email, $password)
+    public function CheckPassword($email, $password)
     {
         $prePassword = $password . $this->salt;
         $sql = 'SELECT password FROM account WHERE email = :email';

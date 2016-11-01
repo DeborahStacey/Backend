@@ -149,4 +149,45 @@ class UserController
         }
     }
 
+    public function ChangePassword(Request $request)
+    {
+        $oldPassword = $request->request->get('currentPassword');
+        $newPassword = $request->request->get('newPassword');
+        $user = $this->app['session']->get('user');
+        
+        if (!$oldPassword) {
+            return JsonResponse::missingParam('currentPassword');
+        }
+        elseif (!$newPassword) {
+            return JsonResponse::missingParam('newPassword');
+        }
+
+        /*
+        Will add in later.
+
+        elseif (!$this->app['api.auth']->passwordRequirements($newPassword)) {
+            return JsonResponse::userError('Password requirements not met');
+        }
+        */
+        
+        //Checks password to make sure it is valid for current user.
+        $success = $this->app['api.auth']->CheckPassword($user['email'], $oldPassword);
+
+        if ($success) {
+            $encryptedPassword = $this->app['api.auth']->EncryptPassword($newPassword);
+
+            $sql = 'UPDATE account SET password = :pass WHERE email = :email';
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':pass' => $encryptedPassword,
+                ':email' => $user['email']
+            ));
+
+            return new JsonResponse();
+        } 
+        else {
+            return JsonResponse::authError('Invalid User or Password');
+        }
+    }
+
 }
