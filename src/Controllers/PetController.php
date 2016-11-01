@@ -81,4 +81,106 @@ class PetController
             return JsonReponse::userError('Unable to register pet.');
         }
     }
+
+    public function SetAccessibility(Request $request)
+    {
+        // Get parameters
+        $email = $request->request->get('email');
+        $petID = $request->request->get('petID');
+        $access = $request->request->get('access');
+
+        // Validate parameters
+        if (!$email) {
+            return JsonResponse::missingParam('email');
+        }
+        elseif (!$petID) {
+            return JsonResponse::missingParam('petID');
+        }
+        elseif (!$access) {
+            return JsonResponse::missingParam('access');
+        }
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return JsonResponse::userError('Invalid email');
+        }
+        elseif (!$this->app['api.dbtypes']->IsValidPetAccessibilityValue($access)) {
+            return JsonResponse::userError('Invalid accessibility value');
+        }
+
+        // Get userID from email
+        $userID = $this->app['api.auth']->GetUserIDByEmail($email);
+
+        if (!$userID) {
+            return JsonResponse::userError('Email provided is not associated with an existing WellCat account');
+        }
+
+        // Check to see if user already has accessibility with pet
+        $currentAccess = $this->GetPetAccessibility($userID, $petID);
+
+        // If no accessibility found, insert
+        if (!$currentAccess) {
+            $sql = 'INSERT INTO accessibility (userid, petid, access)
+                        VALUES (:userid, :petid, :access)';
+
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':userid' => $userID,
+                ':petid' => $petID,
+                ':access' => $access
+            ));
+
+            if ($success) {
+                return new JsonResponse(null, 201);
+            } 
+            else {          
+                return JsonReponse::userError('Unable to set pet accessibility.');
+            }
+        }
+        // else update if current accessibility is not the same as the one trying to be set
+        elseif ($currentAccess != $access) {
+            $sql = 'UPDATE accessibility
+                    SET access = :access
+                    WHERE userid = :userid
+                        AND petid = :petid';
+
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':userid' => $userID,
+                ':petid' => $petID,
+                ':access' => $access
+            ));
+
+            if ($success) {
+                return new JsonResponse(null, 201);
+            } 
+            else {          
+                return JsonReponse::userError('Unable to update pet accessibility.');
+            }
+        }
+        // else just return success
+        else {
+            return new JsonResponse(null, 201);
+        }
+    }
+
+    private function GetPetAccessibility($userID, $petID)
+    {
+        // TODO: validate parameters and throw exception if null
+        // For now, this function is only being called in a state where parameters have already been validated
+        
+        $sql = 'SELECT access FROM accessibility WHERE userid = :userid AND petid = :petid';
+
+        $stmt= $this->app['db']->prepare($sql);
+        $stmt->execute(array( 
+            ':userid' => $userID,
+            ':petid' => $petID
+        ));
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if ($result) {
+            return $result['access'];
+        }
+        else {
+            return null;
+        }
+    }
 }

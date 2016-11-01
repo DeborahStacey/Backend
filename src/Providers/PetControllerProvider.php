@@ -51,6 +51,11 @@ class PetControllerProvider  implements ControllerProviderInterface, ServiceProv
             ->before($userAuthenticate)
         ;
 
+        $controllers
+            ->post('/accessibility', 'api.pet:SetAccessibility')
+            ->before($userAuthenticate)
+        ;
+
         return $controllers;
     }
 }

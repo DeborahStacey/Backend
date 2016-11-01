@@ -52,6 +52,25 @@ class AuthenticationService
         }
     }
 
+    public function GetUserIDByEmail($email)
+    {
+        // TODO: Validate email and throw exception if invalid
+        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return null;
+        }
+
+        $sql = 'SELECT userid FROM account WHERE email = :email';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(':email' => $email));
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result == false) {
+            return null;
+        }
+
+        return (int)$result['userid'];
+    }
+
     private function CheckPassword($email, $password)
     {
         $prePassword = $password . $this->salt;
