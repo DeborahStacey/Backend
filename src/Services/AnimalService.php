@@ -22,11 +22,13 @@ class AnimalService
         $sql = 'SELECT NULL FROM breed WHERE breedid = :breedid';
 
         $stmt = $this->app['db']->prepare($sql);
-        $success = $stmt->execute(array(
+        $stmt->execute(array(
           ':breedid' => $breedId
         ));
 
-        if ($success) {
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result) {
             return true;
         } else {
             return false;

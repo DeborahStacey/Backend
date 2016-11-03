@@ -7,6 +7,7 @@ use PDO;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use WellCat\JsonResponse;
+use WellCat\RequestValidationResult;
 
 class PetController
 {
@@ -20,65 +21,42 @@ class PetController
 
     public function Create(Request $request)
     {
-        // Get parameters
-        $petName = $request->request->get('name');
-        $breed = $request->request->get('breed');
-        $gender = $request->request->get('gender');
-        $dateOfBirth = $request->request->get('dateOfBirth');
-        $weight = $request->request->get('weight');
-        $height = $request->request->get('height');
-        $length = $request->request->get('length');
+        $validationResult = $this->ValidateGenericPetCreationRequest($request);
 
-        // Validate parameters
-        if (!$petName) {
-            return JsonResponse::missingParam('name');
-        }
-        elseif (!$breed) {
-            return JsonResponse::missingParam('breed');
-        }
-        elseif (!$gender) {
-            return JsonResponse::missingParam('gender');
-        }
-        elseif (!$dateOfBirth) {
-            return JsonResponse::missingParam('dateOfBirth');
-        }
-        elseif (!$weight) {
-            return JsonResponse::missingParam('weight');
-        }
-        elseif (!$height) {
-            return JsonResponse::missingParam('height');
-        }
-        elseif (!$length) {
-            return JsonResponse::missingParam('length');
-        }
-        elseif (!DateTime::createFromFormat('Y-m-d', $dateOfBirth)) {
-            return JsonResponse::userError('Invalid date.');
-        }
-        elseif (!$this->app['api.animalservice']->CheckBreedExists($breed)) {
-            return JsonResponse::userError('Invalid breed.');
+        if (!$validationResult->GetSuccess()) {
+            return $validationResult->GetError();
         }
 
-        // Add pet to database
-        $sql = 'INSERT INTO pet (ownerid, name, breedId, gender, dateofbirth, weight, height, length)
-            VALUES (:ownerId, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length)';
+        if ($validationResult->GetParameter('animalTypeID') == 1) {
+            $catValidationResult = $this->ValidateCatPetCreationRequest($request);
 
-        $stmt = $this->app['db']->prepare($sql);
-        $success = $stmt->execute(array(
-            ':ownerId' => $this->app['session']->get('user')['userId'],
-            ':name' => $petName,
-            ':breed' => $breed,
-            ':gender' => $gender,
-            ':dateOfBirth' => $dateOfBirth,
-            ':weight' => $weight,
-            ':height' => $height,
-            ':length' => $length
-        ));
+            if (!$catValidationResult->GetSuccess()) {
+                return $catValidationResult->GetError();
+            }
 
-        if ($success) {
-            return new JsonResponse();
-        } 
-        else {          
-            return JsonReponse::userError('Unable to register pet.');
+            return $this->CreateCatPet(
+                $validationResult->GetParameter('name'),
+                $validationResult->GetParameter('breed'),
+                $validationResult->GetParameter('gender'),
+                $validationResult->GetParameter('dateOfBirth'),
+                $validationResult->GetParameter('weight'),
+                $validationResult->GetParameter('height'),
+                $validationResult->GetParameter('length'),
+                $catValidationResult->GetParameter('declawed'),
+                $catValidationResult->GetParameter('outdoor'),
+                $catValidationResult->GetParameter('fixed')
+            );
+        }
+        else {
+            return $this->CreateGenericPet(
+                $validationResult->GetParameter('name'),
+                $validationResult->GetParameter('breed'),
+                $validationResult->GetParameter('gender'),
+                $validationResult->GetParameter('dateOfBirth'),
+                $validationResult->GetParameter('weight'),
+                $validationResult->GetParameter('height'),
+                $validationResult->GetParameter('length')
+            );
         }
     }
 
@@ -130,8 +108,8 @@ class PetController
 
             if ($success) {
                 return new JsonResponse(null, 201);
-            } 
-            else {          
+            }
+            else {
                 return JsonReponse::userError('Unable to set pet accessibility.');
             }
         }
@@ -151,8 +129,8 @@ class PetController
 
             if ($success) {
                 return new JsonResponse(null, 201);
-            } 
-            else {          
+            }
+            else {
                 return JsonReponse::userError('Unable to update pet accessibility.');
             }
         }
@@ -162,15 +140,178 @@ class PetController
         }
     }
 
+    private function ValidateGenericPetCreationRequest(Request $request)
+    {
+        $success = true;
+        $error = null;
+        $parameters = null;
+
+        // Get parameters
+        $name = $request->request->get('name');
+        $animalTypeID = $request->request->get('animalTypeID');
+        $breed = $request->request->get('breed');
+        $gender = $request->request->get('gender');
+        $dateOfBirth = $request->request->get('dateOfBirth');
+        $weight = $request->request->get('weight');
+        $height = $request->request->get('height');
+        $length = $request->request->get('length');
+
+        // Validate parameters
+        if (!$name) {
+            $success = false;
+            $error = JsonResponse::missingParam('name');
+        }
+        elseif (!$animalTypeID) {
+            $success = false;
+            $error = JsonResponse::missingParam('animalTypeID');
+        }
+        elseif (!$breed) {
+            $success = false;
+            $error = JsonResponse::missingParam('breed');
+        }
+        elseif (!$gender) {
+            $success = false;
+            $error = JsonResponse::missingParam('gender');
+        }
+        elseif (!$dateOfBirth) {
+            $success = false;
+            $error = JsonResponse::missingParam('dateOfBirth');
+        }
+        elseif (!$weight) {
+            $success = false;
+            $error = JsonResponse::missingParam('weight');
+        }
+        elseif (!$height) {
+            $success = false;
+            $error = JsonResponse::missingParam('height');
+        }
+        elseif (!$length) {
+            $success = false;
+            $error = JsonResponse::missingParam('length');
+        }
+        elseif (!DateTime::createFromFormat('Y-m-d', $dateOfBirth)) {
+            $success = false;
+            $error = JsonResponse::userError('Invalid date.');
+        }
+        elseif (!$this->app['api.animalservice']->CheckBreedExists($breed)) {
+            $success = false;
+            $error = JsonResponse::userError('Invalid breed.');
+        }
+        else {
+            $parameters = Array(
+                'name' => $name,
+                'animalTypeID' => $animalTypeID,
+                'breed' => $breed,
+                'gender' => $gender,
+                'dateOfBirth' => $dateOfBirth,
+                'weight' => $weight,
+                'height' => $height,
+                'length' => $length
+            );
+        }
+
+        return new RequestValidationResult($success, $parameters, $error);
+    }
+
+    private function ValidateCatPetCreationRequest(Request $request)
+    {
+        $success = true;
+        $error = null;
+        $parameters = null;
+
+        // Get parameters
+        $declawed = $request->request->get('declawed');
+        $outdoor = $request->request->get('outdoor');
+        $fixed = $request->request->get('fixed');
+
+        // Validate parameters
+        if (!$declawed) {
+            $success = false;
+            $error = JsonResponse::missingParam('declawed');
+        }
+        elseif (!$outdoor) {
+            $success = false;
+            $error = JsonResponse::missingParam('outdoor');
+        }
+        elseif (!$fixed) {
+            $success = false;
+            $error = JsonResponse::missingParam('fixed');
+        }
+        else {
+            $parameters = Array(
+                'declawed' => $declawed,
+                'outdoor' => $outdoor,
+                'fixed' => $fixed
+            );
+        }
+
+        return new RequestValidationResult($success, $parameters, $error);
+    }
+
+    private function CreateCatPet($name, $breed, $gender, $dateOfBirth, $weight, $height, $length, $declawed, $outdoor, $fixed)
+    {
+        // Add pet to database
+        $sql = 'INSERT INTO pet_cat (ownerid, name, breedId, gender, dateofbirth, weight, height, length, declawed, outdoor, fixed)
+            VALUES (:ownerId, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length, :declawed, :outdoor, :fixed)';
+
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+            ':ownerId' => $this->app['session']->get('user')['userId'],
+            ':name' => $name,
+            ':breed' => $breed,
+            ':gender' => $gender,
+            ':dateOfBirth' => $dateOfBirth,
+            ':weight' => $weight,
+            ':height' => $height,
+            ':length' => $length,
+            ':declawed' => $declawed,
+            ':outdoor' => $outdoor,
+            ':fixed' => $fixed
+        ));
+
+        if ($success) {
+            return new JsonResponse();
+        }
+        else {
+            return JsonReponse::userError('Unable to register cat.');
+        }
+    }
+
+    private function CreateGenericPet($name, $breed, $gender, $dateOfBirth, $weight, $height, $length)
+    {
+        // Add pet to database
+        $sql = 'INSERT INTO pet (ownerid, name, breedId, gender, dateofbirth, weight, height, length)
+            VALUES (:ownerId, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length)';
+
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+            ':ownerId' => $this->app['session']->get('user')['userId'],
+            ':name' => $name,
+            ':breed' => $breed,
+            ':gender' => $gender,
+            ':dateOfBirth' => $dateOfBirth,
+            ':weight' => $weight,
+            ':height' => $height,
+            ':length' => $length
+        ));
+
+        if ($success) {
+            return new JsonResponse();
+        }
+        else {
+            return JsonReponse::userError('Unable to register pet.');
+        }
+    }
+
     private function GetPetAccessibility($userID, $petID)
     {
         // TODO: validate parameters and throw exception if null
         // For now, this function is only being called in a state where parameters have already been validated
-        
+
         $sql = 'SELECT access FROM accessibility WHERE userid = :userid AND petid = :petid';
 
         $stmt= $this->app['db']->prepare($sql);
-        $stmt->execute(array( 
+        $stmt->execute(array(
             ':userid' => $userID,
             ':petid' => $petID
         ));
