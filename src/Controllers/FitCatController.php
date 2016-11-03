@@ -66,20 +66,39 @@ class FitCatController
 		elseif (!$amount) {
             return JsonResponse::missingParam('amount');
         }
+	
+		// Check if a row exists in the table for the day, for that specific pet 
+        $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
+        $stmt= $this->app['db']->prepare($sql);
+        $stmt->execute(array( ':date' => $date));
 
-		$sql = 'UPDATE fitcat SET steps = :amount WHERE petid = :petid'
-		$stmt = $this->app['db']->prepare($sql);
-		$success = $stmt->execute(array(
-                ':amount' => $amount,
-                ':petid' => $petid
-        ));
+		$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		
+        if ($result) {
+			$sql = 'UPDATE fitcat SET steps = :amount WHERE petid = :petid'
+			$stmt = $this->app['db']->prepare($sql);
+			$success = $stmt->execute(array(
+            	':amount' => $amount,
+            	':petid' => $petid
+        	));
+        }
+        else {		
+			$sql = 'INSERT INTO fitcat (petid, steps, activerhours, inactivehours, waterconsumption, foodconsumption, foodbrand, description, date)
+				VALUES (:petid, :amount, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, :date)';
+			$stmt = $this->app['db']->prepare($sql);
+			$success = $stmt->execute(array(
+				':petid' => $petid,
+            	':amount' => $amount,
+            	':date' => $date
+        	));	
+		}
 
-        if ($success) {
+		if ($success) {
             return new JsonResponse();
         } 
         else {
             return JsonReponse::userError('Unable to update steps');
-        }		
+       	}			
 
         //return some sort of JsonResponse If you want to know more review the JsonResponse Wiki
         return new JsonResponse();
@@ -101,20 +120,39 @@ class FitCatController
 		elseif (!$amount) {
             return JsonResponse::missingParam('amount');
         }
-
-		$sql = 'UPDATE fitcat SET waterconsumption = :amount WHERE petid = :petid'
-		$stmt = $this->app['db']->prepare($sql);
-		$success = $stmt->execute(array(
-                ':amount' => $amount,
+    
+		// Check if a row exists in the table for the day, for that specific pet 
+        $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
+        $stmt= $this->app['db']->prepare($sql);
+        $stmt->execute(array( ':date' => $date));
+        
+		$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		
+        if ($result) {
+			$sql = 'UPDATE fitcat SET waterconsumption = :amount WHERE petid = :petid'
+			$stmt = $this->app['db']->prepare($sql);
+			$success = $stmt->execute(array(
+            	':amount' => $amount,
                 ':petid' => $petid
-        ));
+        	));
+        }
+        else {		
+			$sql = 'INSERT INTO fitcat (petid, steps, activerhours, inactivehours, waterconsumption, foodconsumption, foodbrand, description, date)
+				VALUES (:petid, DEFAULT, DEFAULT, DEFAULT, :amount, DEFAULT, DEFAULT, DEFAULT, :date)';
+			$stmt = $this->app['db']->prepare($sql);
+			$success = $stmt->execute(array(
+				':petid' => $petid,
+            	':amount' => $amount,
+            	':date' => $date
+        	));	
+		}
 
-        if ($success) {
+		if ($success) {
             return new JsonResponse();
         } 
         else {
-            return JsonReponse::userError('Unable to update water consumption');
-        }		
+            return JsonReponse::userError('Unable to update steps');
+       	}			
 
         //return some sort of JsonResponse If you want to know more review the JsonResponse Wiki
         return new JsonResponse();
@@ -145,21 +183,42 @@ class FitCatController
             return JsonResponse::missingParam('description');
         }
         
-		$sql = 'UPDATE fitcat SET foodconsumption = :amount, brand = :brand, description = :description WHERE petid = :petid'
-		$stmt = $this->app['db']->prepare($sql);
-		$success = $stmt->execute(array(
+		// Check if a row exists in the table for the day, for that specific pet 
+        $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
+        $stmt= $this->app['db']->prepare($sql);
+        $stmt->execute(array( ':date' => $date));
+        
+		$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		
+        if ($result) {
+			$sql = 'UPDATE fitcat SET foodconsumption = :amount, brand = :brand, description = :description WHERE petid = :petid'
+			$stmt = $this->app['db']->prepare($sql);
+			$success = $stmt->execute(array(
                 ':amount' => $amount,
                 ':brand' => $brand,
                 ':description' => $description,
                 ':petid' => $petid
-        ));
+			));
+        }
+        else {		
+			$sql = 'INSERT INTO fitcat (petid, steps, activerhours, inactivehours, waterconsumption, foodconsumption, foodbrand, description, date)
+				VALUES (:petid, DEFAULT, DEFAULT, DEFAULT, , :amount, :brand, :description, :date)';
+			$stmt = $this->app['db']->prepare($sql);
+			$success = $stmt->execute(array(
+				':petid' => $petid,
+            	':amount' => $amount,
+            	':brand' => $brand,
+                ':description' => $description,
+            	':date' => $date
+        	));	
+		}
 
-        if ($success) {
+		if ($success) {
             return new JsonResponse();
         } 
         else {
-            return JsonReponse::userError('Unable to update food consumption');
-        }		
+            return JsonReponse::userError('Unable to update steps');
+       	}		
 
         //return some sort of JsonResponse If you want to know more review the JsonResponse Wiki
         return new JsonResponse();
