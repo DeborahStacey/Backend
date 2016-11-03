@@ -118,8 +118,8 @@ class PetController
 
         // If no accessibility found, insert
         if (!$currentAccess) {
-            $sql = 'INSERT INTO accessibility (userid, petid, access)
-                        VALUES (:userid, :petid, :access)';
+            $sql = 'INSERT INTO accessibility (userid, petid, access) 
+                VALUES (:userid, :petid, :access)';
 
             $stmt = $this->app['db']->prepare($sql);
             $success = $stmt->execute(array(
@@ -129,7 +129,7 @@ class PetController
             ));
 
             if ($success) {
-                return new JsonResponse(null, 201);
+                return new JsonResponse();
             } 
             else {          
                 return JsonReponse::userError('Unable to set pet accessibility.');
@@ -150,7 +150,7 @@ class PetController
             ));
 
             if ($success) {
-                return new JsonResponse(null, 201);
+                return new JsonResponse();
             } 
             else {          
                 return JsonReponse::userError('Unable to update pet accessibility.');
@@ -158,7 +158,83 @@ class PetController
         }
         // else just return success
         else {
-            return new JsonResponse(null, 201);
+            return new JsonResponse();
+        }
+    }
+
+    //TODO: need to add the case for admins having access to any cat.
+    public function GetPet($petID)
+    {
+        if (!$petID) {
+            return JsonResponse::missingParam('petID');
+        }
+
+        $user = $this->app['session']->get('user');
+
+        $sql = 'SELECT NULL FROM pet WHERE petid = :petID AND ownerid = :user';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+            ':petID' => $petID,
+            ':user' => $user['userId']
+        ));
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$result) {
+            $petAccess = $this->GetPetAccessibility($user['userId'], $petID);
+            if (!$petAccess) {
+                $body = array(
+                    'success' => false,
+                    'error' => 'You do not have access to this pet'
+                );
+
+                return new JsonResponse ($body, 403);
+            }
+        }
+
+        $sql = 'SELECT name, breedid AS breedID, gender, dateofbirth AS dateOfBirth, weight, height, length FROM pet WHERE petid = :petID';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+            ':petID' => $petID
+        ));
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        $body = array(
+            'success' => true,
+            'pet' => $result
+        );
+
+        return new JsonResponse($body,200);
+
+    }
+
+    public function GetAllPets()
+    {
+        $user = $this->app['session']->get('user');
+
+        //TODO: need to innerjoin and add firstname lastname to the select and give it to the caller from account to say who owns the each pet.
+        $sql = 'SELECT petid AS petID, name, gender, lastupdated AS lastUpdated FROM pet WHERE ownerid = :user OR petid IN (SELECT petid FROM accessibility WHERE userid = :user)';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+            ':user' => $user['userId']
+        ));
+
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if ($result) {
+            $body = array(
+                'success' => true,
+                'pets' => $result
+            );
+            return new JsonResponse($body, 200);
+        }
+        else {
+            $body = array(
+                'success' => true,
+                'message' => 'No pets found'
+            );
+            return new JsonResponse($body, 404);
         }
     }
 
