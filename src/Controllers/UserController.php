@@ -148,13 +148,12 @@ class UserController
             return JsonResponse::authError('Incorrect email or password');
         }
     }
-
     public function ChangePassword(Request $request)
     {
         $oldPassword = $request->request->get('currentPassword');
         $newPassword = $request->request->get('newPassword');
         $user = $this->app['session']->get('user');
-        
+
         if (!$oldPassword) {
             return JsonResponse::missingParam('currentPassword');
         }
@@ -169,7 +168,7 @@ class UserController
             return JsonResponse::userError('Password requirements not met');
         }
         */
-        
+
         //Checks password to make sure it is valid for current user.
         $success = $this->app['api.auth']->CheckPassword($user['email'], $oldPassword);
 
@@ -184,10 +183,60 @@ class UserController
             ));
 
             return new JsonResponse();
-        } 
+        }
         else {
             return JsonResponse::authError('Invalid User or Password');
         }
     }
 
+    public function updateUsr(Request $request)
+    {
+
+        $password = $request->request->get('password');
+        $address = $request->request->get('address');
+        $user = $this->app['session']->get('user');
+
+        if (!$password) {
+            return JsonResponse::missingParam('password');
+        }
+        elseif (!$address) {
+            return JsonResponse::missingParam('address');
+        }
+        elseif (!$address['street']) {
+            return JsonResponse::missingParam('address(street)');
+        }
+        elseif (!$address['unit']) {
+            return JsonResponse::missingParam('address(unit)');
+        }
+        elseif (!$address['city']) {
+            return JsonResponse::missingParam('address(city)');
+        }
+        elseif (!$address['postalCode']) {
+            return JsonResponse::missingParam('address(postalCode)');
+        }
+        elseif (!$address['locationID']) {
+            return JsonResponse::missingParam('address(locationID)');
+        }
+
+        $success = $this->app['api.auth']->CheckPassword($user['email'], $password);
+
+        if ($success) {
+        $data = array(
+            'success' => true,
+            'user' => $user['email'],
+            'street' => $address['street'],
+            'unit' => $address['unit'],
+            'city' => $address['city'],
+            'postal' => $address['postalCode'],
+            'locationid' => $address['locationID'],
+            'message' => 'password good, or something like that'
+        );
+        return new JsonResponse($data, 201);
+
+
+        } 
+        else {
+            return JsonResponse::authError('Invalid User or Password');
+        }
+    }
 }
