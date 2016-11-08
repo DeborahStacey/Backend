@@ -41,6 +41,35 @@ class FitCatController
                 ':petid' => $petid
         ));
 
+	// Check if a row exists in the table for the day, for that specific pet
+        $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
+        $stmt= $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+                ':petid' => $petid,
+                ':date' => $date
+        ));
+
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if ($result) {
+                $sql = 'UPDATE fitcat SET weight = :amount WHERE petid = :petid AND date = :date';
+                $stmt = $this->app['db']->prepare($sql);
+                $success = $stmt->execute(array(
+                        ':amount' => $amount,
+                        ':date' => $date,
+                        ':petid' => $petid
+                ));
+        }
+        else {
+                $sql = 'INSERT INTO fitcat (petid, weight, date) VALUES (:petid, :amount, :date)';
+                $stmt = $this->app['db']->prepare($sql);
+                $success = $stmt->execute(array(
+                        ':petid' => $petid,
+                        ':amount' => $amount,
+                        ':date' => $date
+                ));
+        }
+
         if ($success) {
             return new JsonResponse();
         } 
