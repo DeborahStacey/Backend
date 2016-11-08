@@ -224,7 +224,8 @@ class PetController
             }
         }
 
-        $sql = 'SELECT name, breedid AS breedID, gender, dateofbirth AS dateOfBirth, weight, height, length FROM pet WHERE petid = :petID';
+        $sql = 'SELECT get_pet(:petID, \'pet_cursor\'); FETCH ALL FROM \"pet_cursor\";';
+        //$sql = 'SELECT name, breedid AS breedID, gender, dateofbirth AS dateOfBirth, weight, height, length FROM pet WHERE petid = :petID';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':petID' => $petID
@@ -245,31 +246,24 @@ class PetController
     {
         $user = $this->app['session']->get('user');
 
-        //get list of all pets that the current user owns
-        $sql = 'SELECT p.petid AS petID, p.name, p.gender, a.firstname, a.lastname, p.lastupdated AS lastUpdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user';
-
-        $stmt = $this->app['db']->prepare($sql);
-        $stmt->execute(array(
-            ':user' => $user['userId']
-        ));
-
-        $personal = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
         //get list of all pets that current user has access to.
-        $sql = 'SELECT p.petid AS petID, p.name, p.gender, a.firstname, a.lastname, p.lastupdated AS lastUpdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user)';
+        $sql = 'SELECT p.petid AS petID, p.name, p.gender, a.firstname, a.lastname, p.lastupdated AS lastUpdated
+                FROM pet p
+                  INNER JOIN account a ON p.ownerid = a.userid
+                WHERE (p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user))
+                  OR p.ownerid = :user';
 
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':user' => $user['userId']
         ));
 
-        $shared = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $pets = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($personal && $shared) {
+        if ($pets) {
             $body = array(
                 'success' => true,
-                'personal' => $personal,
-                'shared' => $shared
+                'pets' => $pets
             );
             return new JsonResponse($body, 200);
         }
