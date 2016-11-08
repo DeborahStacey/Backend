@@ -213,19 +213,31 @@ class PetController
     {
         $user = $this->app['session']->get('user');
 
-        //TODO: need to innerjoin and add firstname lastname to the select and give it to the caller from account to say who owns the each pet.
-        $sql = 'SELECT petid AS petID, name, gender, lastupdated AS lastUpdated FROM pet WHERE ownerid = :user OR petid IN (SELECT petid FROM accessibility WHERE userid = :user)';
+        //get list of all pets that the current user owns
+        $sql = 'SELECT p.petid AS petID, p.name, p.gender, a.firstname, a.lastname, p.lastupdated AS lastUpdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user';
+
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':user' => $user['userId']
         ));
 
-        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $personal = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($result) {
+        //get list of all pets that current user has access to.
+        $sql = 'SELECT p.petid AS petID, p.name, p.gender, a.firstname, a.lastname, p.lastupdated AS lastUpdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user)';
+
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+            ':user' => $user['userId']
+        ));
+
+        $shared = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if ($personal && $shared) {
             $body = array(
                 'success' => true,
-                'pets' => $result
+                'personal' => $personal,
+                'shared' => $shared
             );
             return new JsonResponse($body, 200);
         }
