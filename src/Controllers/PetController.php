@@ -241,7 +241,7 @@ class PetController
         $user = $this->app['session']->get('user');
 
         //get list of all pets that the current user owns
-        $sql = 'SELECT p.petid AS petID, p.name, p.gender, a.firstname, a.lastname, p.lastupdated AS lastUpdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user';
+        $sql = 'SELECT p.petid, p.name, p.gender, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user';
 
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
@@ -260,7 +260,7 @@ class PetController
 
         $shared = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($personal && $shared) {
+        if ($personal || $shared) {
             $body = array(
                 'success' => true,
                 'personal' => $personal,
