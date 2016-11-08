@@ -15,6 +15,9 @@ class AddressController
         $this->app = $app;
     }
 
+    /**
+     * Gets list of countries 
+     */
     public function Countries()
     {
         $sql ='SELECT countryid AS id, countryname AS name FROM country';
@@ -39,7 +42,11 @@ class AddressController
         }
     }
 
-    public function Locations(Request $request, $country)
+    /**
+     * Gets list of locations based on given country
+     * @param [int]  $country a countryid from the countries list
+     */
+    public function Locations($country)
     {
 
         $sql ='SELECT locationid AS id, locationname AS name FROM location WHERE countryid = :countryID';

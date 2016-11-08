@@ -14,6 +14,9 @@ class AnimalController
         $this->app['session']->start();
     }
 
+    /**
+     * gets a list of animals that are known
+     */
     public function GetAnimals()
     {
         // Get animals from database
@@ -42,6 +45,10 @@ class AnimalController
         }
     }
 
+    /**
+     * Gets listof breeds based on a given animal
+     * @param [int] $animalId a animalID that is gotten from the list of animals
+     */
     public function GetBreedsByAnimalId($animalId)
     {
         if (!$animalId) {
@@ -78,6 +85,9 @@ class AnimalController
         }
     }
 
+    /**
+     * Gets a list of known genders
+     */
     public function GetGenders()
     {
         // Get genders from database

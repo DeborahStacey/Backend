@@ -18,6 +18,17 @@ class PetController
         $this->app['session']->start();
     }
 
+    /**
+     * Function is given some required information to create a new pet in the system
+     * @param Request $request holds JSON data of pet infromation needed to create a pet
+     *       =>[text] name holds the pets name
+     *       =>[int] breed holds the breedif of the pet
+     *       =>[int] gender holds the genderid of the pet
+     *       =>[date] dateOfBirth holds the date a pet was born in the format (yyyy-mm-dd)
+     *       =>[real] weight holds the weight of the pet
+     *       =>[real] height holds the height of the pet
+     *       =>[int] length holds the length of the pet
+     */
     public function Create(Request $request)
     {
         // Get parameters
@@ -82,6 +93,13 @@ class PetController
         }
     }
 
+    /**
+     * Function adds sharing of one pet to another user in the system
+     * @param Request $request holds JSON data of user and pet info in order to share a pet with someone else
+     *       =>[text] email holds the email in format (*@*.*)
+     *       =>[int] petID hold the petID of a pet in the system
+     *       =>[enum] access holds either 'write' OR 'read' to distiguish what access someone is gaining
+     */
     public function SetAccessibility(Request $request)
     {
         // Get parameters
@@ -106,7 +124,7 @@ class PetController
             return JsonResponse::userError('Invalid accessibility value');
         }
 
-        // Get userID from email
+        // Get userID based on email
         $userID = $this->app['api.auth']->GetUserIDByEmail($email);
 
         if (!$userID) {
@@ -162,15 +180,17 @@ class PetController
         }
     }
 
-    //TODO: need to add the case for admins having access to any cat.
+    /**
+     * Function gets pet information based on a given petID but if the user doesn't have 
+     * access they do not get any information about the pet
+     * @param [int] $petID holds the petID of a pet to be accessed
+     */
     public function GetPet($petID)
     {
-        if (!$petID) {
-            return JsonResponse::missingParam('petID');
-        }
-
+        //gets user session
         $user = $this->app['session']->get('user');
 
+        //checks if user owns the pet
         $sql = 'SELECT NULL FROM pet WHERE petid = :petID AND ownerid = :user';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
@@ -180,6 +200,8 @@ class PetController
 
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
+        //if user doesn't own the pet checks to see if they have access to the 
+        //pet and if not a error message is returned to the caller
         if (!$result) {
             $petAccess = $this->GetPetAccessibility($user['userId'], $petID);
             if (!$petAccess) {
@@ -192,6 +214,8 @@ class PetController
             }
         }
 
+        //Gets all information of a given pet as long as the user had gained access to the 
+        //pet by owning or shared.
         $sql = 'SELECT name, breedid AS breedID, gender, dateofbirth AS dateOfBirth, weight, height, length FROM pet WHERE petid = :petID';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
@@ -209,6 +233,9 @@ class PetController
 
     }
 
+    /**
+     * Function gets a listing of all pets a user has access to and returns them
+     */
     public function GetAllPets()
     {
         $user = $this->app['session']->get('user');
@@ -250,6 +277,11 @@ class PetController
         }
     }
 
+    /**
+     * Function trys to select a current shared access if it exits it returns the access. Otherwise returns null
+     * @param [int] $userID holds a userID of a user in the system
+     * @param [int] $petID  holds a petID of a pet in the system
+     */
     private function GetPetAccessibility($userID, $petID)
     {
         // TODO: validate parameters and throw exception if null

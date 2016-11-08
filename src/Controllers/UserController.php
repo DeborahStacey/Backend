@@ -18,6 +18,10 @@ class UserController
         $this->app['session']->start();
     }
 
+
+    /**
+     * Function tells the user they are authenticated.
+     */
     public function Authenticate()
     {
         $data = array(
@@ -27,14 +31,31 @@ class UserController
         return new JsonResponse($data, 200);
     }
 
+
+    /**
+     * Function registers user in the system
+     * @param Request $request holds JSON data of a user to register them in the system
+     *       =>[text] email holds the email of a person in the format (*@*.*)
+     *       =>[text] password holds the plain text of a password
+     *       =>[text] firstName holds the first name of the new user
+     *       =>[text] lastName holds the last name of the new user
+     *       =>[array] address holds the address information of a user
+     *                =>[street][text] holds the street adderss of the user
+     *                =>[unit][text] holds the unit number of the user
+     *                =>[city][text] holds the city name of the location the user is addressing
+     *                =>[postalCode][text] holds the postal code of the user
+     *                =>[locationID][int] holds a locationID that the user lives in
+     */
     public function Register(Request $request)
     {
+        //gets parameters
         $email = $request->request->get('email');
         $password = $request->request->get('password');
         $first = $request->request->get('firstName');
         $last = $request->request->get('lastName');
         $address = $request->request->get('address');
 
+        //checks parameters for accuracy and existence
         if (!$email) {
             return JsonResponse::missingParam('email');
         }
@@ -77,6 +98,7 @@ class UserController
         }
         */
        
+       //checks to see if the email is already registered with another user
         $sql = 'SELECT email FROM account WHERE email = :email';
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
@@ -102,8 +124,10 @@ class UserController
             return JsonResponse::userError('Unable to register address');
         }
 
+        //encrypts the password
         $encryptedPassword = $this->app['api.auth']->EncryptPassword($password);
         
+        //adds the user to the system (registers them)
         $sql = 'INSERT INTO account (addressid, email, password, firstname, lastname)
             VALUES (:addressid, :email, :password, :first, :last)';
         $stmt = $this->app['db']->prepare($sql);
@@ -124,11 +148,19 @@ class UserController
     }
 
 
+    /**
+     * Function logs in the user if the proper email and password are given
+     * @param Request $request holds JSON data of the users email and password to login
+     *       =>[text] email holds the email of the user attempting to login
+     *       =>[text] password holds the password of the user attempting to login
+     */
     public function Login(Request $request)
     {
+        //gets parameters
         $email = $request->request->get('email');
         $password = $request->request->get('password');
 
+        //checks parameters for accuracy and existence
         if (!$email) {
             return JsonResponse::missingParam('email');
         } 
@@ -139,6 +171,7 @@ class UserController
             return JsonResponse::userError('Invalid email');
         }
 
+        //trys to log the user in (authenticate)
         $success = $this->app['api.auth']->Authenticate($email, $password);
 
         if ($success) {
@@ -149,6 +182,14 @@ class UserController
         }
     }
 
+
+    /**
+     * Function takes in the current password of a user and a new pasword to 
+     * change to and attempts to update it if the passwords are correct.
+     * @param Request $request holds JSON data of two passwords one current one new
+     *       =>[text] currentPassword holds the current password the user has entered
+     *       =>[text] newPassword holds the new password the user wants to update their password to
+     */
     public function ChangePassword(Request $request)
     {
         $oldPassword = $request->request->get('currentPassword');
