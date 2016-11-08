@@ -95,7 +95,7 @@ class PetController
 
         // If no accessibility found, insert
         if (!$currentAccess) {
-            $sql = 'INSERT INTO accessibility (userid, petid, access) 
+            $sql = 'INSERT INTO accessibility (userid, petid, access)
                 VALUES (:userid, :petid, :access)';
 
             $stmt = $this->app['db']->prepare($sql);
@@ -161,7 +161,7 @@ class PetController
         ));
 
         if ($success) {
-            return new JsonResponse();
+            return new JsonResponse(null, 201);
         }
         else {
             return JsonReponse::userError('Unable to register cat.');
@@ -187,7 +187,7 @@ class PetController
         ));
 
         if ($success) {
-            return new JsonResponse();
+            return new JsonResponse(null, 201);
         }
         else {
             return JsonReponse::userError('Unable to register pet.');
