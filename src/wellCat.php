@@ -1,7 +1,6 @@
 <?php
 
 $env = $app['env'];
-$app['config'] = parse_ini_file('./config/configFile.ini', true);
 
 /*
  * Register
@@ -24,7 +23,10 @@ $app->register(new \WellCat\Providers\DatabaseServiceProvider());
 $app['db']->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 
+$app->register(new \WellCat\Providers\AddressServiceProvider());
 $app->register(new \WellCat\Providers\AuthenticationServiceProvider());
+$app->register(new \WellCat\Providers\AnimalServiceProvider());
+$app->register(new \WellCat\Providers\DatabaseTypesServiceProvider());
 
 //Convert json bodies to objects
 $app->before(function (\Symfony\Component\HttpFoundation\Request $request) {

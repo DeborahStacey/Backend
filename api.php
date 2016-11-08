@@ -9,10 +9,13 @@ require_once __DIR__.'/vendor/autoload.php';
 
 use WellCat\Providers\ApiControllerProvider;
 use WellCat\Providers\UserControllerProvider;
+use WellCat\Providers\PetControllerProvider;
+use WellCat\Providers\AddressControllerProvider;
+use WellCat\Providers\AnimalControllerProvider;
 
 $app = new Silex\Application();
 $app['env'] = 'dev';
-
+require_once __DIR__.'/config/configFile.php';
 require_once __DIR__.'/src/wellCat.php';
 
 $apiConProv = new ApiControllerProvider();
@@ -23,6 +26,16 @@ $userConProv = new UserControllerProvider();
 $app->register($userConProv);
 $app->mount('/user', $userConProv);
 
-$app->run();
+$petConProv = new PetControllerProvider();
+$app->register($petConProv);
+$app->mount('/pet', $petConProv);
 
-?>
+$addrConProv = new AddressControllerProvider();
+$app->register($addrConProv);
+$app->mount('/address', $addrConProv);
+
+$animalConProv = new AnimalControllerProvider();
+$app->register($animalConProv);
+$app->mount('/animal', $animalConProv);
+
+$app->run();

@@ -10,7 +10,7 @@ class JsonResponse extends Response
     {
         if (is_null($data)) {
             $data = array(
-                'success' => 'true'
+                'success' => true
             );
         }
         $data = json_encode($data);
@@ -22,7 +22,7 @@ class JsonResponse extends Response
     public static function missingParam(string $key)
     {
         $body = array(
-            'success' => 'false',
+            'success' => false,
             'error' => 'Missing '.$key
         );
         return new self($body, 404);
@@ -31,7 +31,7 @@ class JsonResponse extends Response
     public static function userError(string $error)
     {
         $body = array(
-            'success' => 'false',
+            'success' => false,
             'error' => $error
         );
         return new self($body, 400);
@@ -41,7 +41,7 @@ class JsonResponse extends Response
     {
         $code = $forbidden ? 401 : 403;
         $body = array (
-            'success' => 'false',
+            'success' => false,
             'error' => $error
         );
         return new self($body, $code);
@@ -50,7 +50,7 @@ class JsonResponse extends Response
     public static function serverError()
     {
         $body = array(
-            'success' => 'false',
+            'success' => false,
             'error' => 'Unknown server error'
         );
         return new self($body, 500);

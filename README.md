@@ -10,7 +10,7 @@
 
 4. Update the config/configFile.php with the correct information to connect to a database and the encrptoion key that you are using
 
-5. You should now be all setup to start using the API and making queries to it. Please refer to the Wiki on github to see a list of available querries you can make to the API. (https://github.com/GuelphOntologyTeam/Backend/wiki)
+5. You should now be all setup to start using the API and making queries to it. Please refer to the Wiki on github to see a list of available querries you can make to the API. (https://github.com/GuelphOntologyTeam/Backend/wiki/API-Endpoints)
 
 
 

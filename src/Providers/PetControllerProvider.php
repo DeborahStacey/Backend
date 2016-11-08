@@ -1,23 +1,23 @@
 <?php
+
 namespace WellCat\Providers;
 
 use Silex\Application;
 use Silex\ControllerCollection;
 use Silex\ControllerProviderInterface;
 use Silex\ServiceProviderInterface;
-use WellCat\Controllers\UserController;
+use WellCat\Controllers\PetController;
 use WellCat\JsonResponse;
 
-class UserControllerProvider implements ControllerProviderInterface, ServiceProviderInterface
+class PetControllerProvider  implements ControllerProviderInterface, ServiceProviderInterface
 {
-
     /**
      * Registers
      */
     public function register(Application $app)
     {
-        $app['api.user'] = $app->share(function () use ($app) {
-            return new UserController($app);
+        $app['api.pet'] = $app->share(function () use ($app) {
+            return new PetController($app);
         });
     }
 
@@ -30,7 +30,6 @@ class UserControllerProvider implements ControllerProviderInterface, ServiceProv
      * Returns routes to connect to the given application.
      *
      * @param Application $app An Application instance
-     *
      * @return ControllerCollection A ControllerCollection instance
      */
     public function connect(Application $app)
@@ -48,20 +47,22 @@ class UserControllerProvider implements ControllerProviderInterface, ServiceProv
         $controllers = $app['controllers_factory'];
 
         $controllers
-            ->get('/authenticate', 'api.user:Authenticate')
+            ->post('/create', 'api.pet:Create')
             ->before($userAuthenticate)
         ;
 
         $controllers
-            ->post('/register', 'api.user:Register')
+            ->post('/accessibility', 'api.pet:SetAccessibility')
+            ->before($userAuthenticate)
         ;
 
         $controllers
-            ->post('/login', 'api.user:Login')
+            ->get('/view/{petID}', 'api.pet:GetPet')
+            ->before($userAuthenticate)
         ;
 
         $controllers
-            ->put('/changePassword', 'api.user:ChangePassword')
+            ->get('/pets', 'api.pet:GetAllPets')
             ->before($userAuthenticate)
         ;
 
