@@ -13,29 +13,31 @@ class FitCatController
     public function __construct(Application $app)
     {
         $this->app = $app;
+	$this->app['session']->start();
     }
 
-    public function Weight()
+    public function Weight(Request $request)
     {
     	$petid = $request->request->get('petid');
     	$date= $request->request->get('date');
         $amount = $request->request->get('amount');
 		
         // Validate parameters
-		if (!$petid) {
+	if (!$petid) {
             return JsonResponse::missingParam('petid');
         }
- 		elseif (!$date) {
+ 	elseif (!$date) {
             return JsonResponse::missingParam('date');
         }       
-		elseif (!$amount) {
+	elseif (!$amount) {
             return JsonResponse::missingParam('amount');
         }
 
-		$sql = 'UPDATE pet SET weight = :amount WHERE petid = :petid'
-		$stmt = $this->app['db']->prepare($sql);
-		$success = $stmt->execute(array(
-                ':amount' => $amount,
+	$sql = 'UPDATE pet SET weight = :amount, lastupdated = :date WHERE petid = :petid';
+	$stmt = $this->app['db']->prepare($sql);
+	$success = $stmt->execute(array(
+        	':amount' => $amount,
+		':date' => $date,
                 ':petid' => $petid
         ));
 
@@ -50,51 +52,54 @@ class FitCatController
         return new JsonResponse();
     }
     
-    public function Steps()
+    public function Steps(Request $request)
     {
     	$petid = $request->request->get('petid');
     	$date= $request->request->get('date');
         $amount = $request->request->get('amount');
 		
         // Validate parameters
-		if (!$petid) {
+	if (!$petid) {
             return JsonResponse::missingParam('petid');
         }
- 		elseif (!$date) {
+ 	elseif (!$date) {
             return JsonResponse::missingParam('date');
         }       
-		elseif (!$amount) {
+	elseif (!$amount) {
             return JsonResponse::missingParam('amount');
         }
 	
-		// Check if a row exists in the table for the day, for that specific pet 
-        $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
+	// Check if a row exists in the table for the day, for that specific pet 
+	$sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
-        $stmt->execute(array( ':date' => $date));
+        $stmt->execute(array( 
+        	':petid' => $petid,
+            	':date' => $date
+        ));
 
-		$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+	$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		
         if ($result) {
-			$sql = 'UPDATE fitcat SET steps = :amount WHERE petid = :petid'
-			$stmt = $this->app['db']->prepare($sql);
-			$success = $stmt->execute(array(
-            	':amount' => $amount,
-            	':petid' => $petid
+		$sql = 'UPDATE fitcat SET steps = :amount WHERE petid = :petid AND date = :date';
+		$stmt = $this->app['db']->prepare($sql);
+		$success = $stmt->execute(array(
+            		':amount' => $amount,
+			':date' => $date,
+            		':petid' => $petid
         	));
         }
         else {		
-			$sql = 'INSERT INTO fitcat (petid, steps, activerhours, inactivehours, waterconsumption, foodconsumption, foodbrand, description, date)
-				VALUES (:petid, :amount, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, DEFAULT, :date)';
-			$stmt = $this->app['db']->prepare($sql);
-			$success = $stmt->execute(array(
-				':petid' => $petid,
-            	':amount' => $amount,
-            	':date' => $date
+		$sql = 'INSERT INTO fitcat (petid, steps, date) VALUES (:petid, :amount, :date)';
+		$stmt = $this->app['db']->prepare($sql);
+		$success = $stmt->execute(array(
+			':petid' => $petid,
+            		':amount' => $amount,
+            		':date' => $date
         	));	
-		}
+	}
 
-		if ($success) {
-            return new JsonResponse();
+	if ($success) {
+            	return new JsonResponse();
         } 
         else {
             return JsonReponse::userError('Unable to update steps');
@@ -104,50 +109,53 @@ class FitCatController
         return new JsonResponse();
     }
     
-    public function Water()
+    public function Water(Request $request)
     {
     	$petid = $request->request->get('petid');
     	$date= $request->request->get('date');
         $amount = $request->request->get('amount');
 		
         // Validate parameters
-		if (!$petid) {
+	if (!$petid) {
             return JsonResponse::missingParam('petid');
         }
- 		elseif (!$date) {
+ 	elseif (!$date) {
             return JsonResponse::missingParam('date');
         }       
-		elseif (!$amount) {
+	elseif (!$amount) {
             return JsonResponse::missingParam('amount');
         }
     
-		// Check if a row exists in the table for the day, for that specific pet 
-        $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
+	// Check if a row exists in the table for the day, for that specific pet 
+	$sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
-        $stmt->execute(array( ':date' => $date));
-        
-		$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $stmt->execute(array(
+                ':petid' => $petid,
+                ':date' => $date
+        ));
+
+	$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		
         if ($result) {
-			$sql = 'UPDATE fitcat SET waterconsumption = :amount WHERE petid = :petid'
-			$stmt = $this->app['db']->prepare($sql);
-			$success = $stmt->execute(array(
-            	':amount' => $amount,
-                ':petid' => $petid
+		$sql = 'UPDATE fitcat SET waterconsumption = :amount WHERE petid = :petid AND date = :date';
+		$stmt = $this->app['db']->prepare($sql);
+		$success = $stmt->execute(array(
+            		':amount' => $amount,
+			':date' => $date,
+                	':petid' => $petid
         	));
         }
         else {		
-			$sql = 'INSERT INTO fitcat (petid, steps, activerhours, inactivehours, waterconsumption, foodconsumption, foodbrand, description, date)
-				VALUES (:petid, DEFAULT, DEFAULT, DEFAULT, :amount, DEFAULT, DEFAULT, DEFAULT, :date)';
-			$stmt = $this->app['db']->prepare($sql);
-			$success = $stmt->execute(array(
-				':petid' => $petid,
-            	':amount' => $amount,
-            	':date' => $date
+		$sql = 'INSERT INTO fitcat (petid, waterconsumption, date) VALUES (:petid, :amount, :date)';
+		$stmt = $this->app['db']->prepare($sql);
+		$success = $stmt->execute(array(
+			':petid' => $petid,
+            		':amount' => $amount,
+            		':date' => $date
         	));	
-		}
+	}
 
-		if ($success) {
+	if ($success) {
             return new JsonResponse();
         } 
         else {
@@ -158,62 +166,65 @@ class FitCatController
         return new JsonResponse();
     }
   
-    public function Food()
+    public function Food(Request $request)
     {
     	$petid = $request->request->get('petid');
     	$date= $request->request->get('date');
         $amount = $request->request->get('amount');
-		$brand = $request->request->get('brand');
-		$description = $request->request->get('description');
+	$brand = $request->request->get('brand');
+	$description = $request->request->get('description');
 		
         // Validate parameters
-		if (!$petid) {
+	if (!$petid) {
             return JsonResponse::missingParam('petid');
         }
- 		elseif (!$date) {
+ 	elseif (!$date) {
             return JsonResponse::missingParam('date');
         }       
-		elseif (!$amount) {
+	elseif (!$amount) {
             return JsonResponse::missingParam('amount');
         }
- 		elseif (!$brand) {
+ 	elseif (!$brand) {
             return JsonResponse::missingParam('brand');
         }       
-		elseif (!$description) {
+	elseif (!$description) {
             return JsonResponse::missingParam('description');
         }
         
-		// Check if a row exists in the table for the day, for that specific pet 
-        $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
+	// Check if a row exists in the table for the day, for that specific pet 
+	$sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
-        $stmt->execute(array( ':date' => $date));
-        
-		$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $stmt->execute(array(
+                ':petid' => $petid,
+                ':date' => $date
+        ));
+
+	$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		
         if ($result) {
-			$sql = 'UPDATE fitcat SET foodconsumption = :amount, brand = :brand, description = :description WHERE petid = :petid'
-			$stmt = $this->app['db']->prepare($sql);
-			$success = $stmt->execute(array(
-                ':amount' => $amount,
-                ':brand' => $brand,
-                ':description' => $description,
-                ':petid' => $petid
-			));
+		$sql = 'UPDATE fitcat SET foodconsumption = :amount, foodbrand = :brand, description = :description WHERE petid = :petid AND date = :date';
+		$stmt = $this->app['db']->prepare($sql);
+		$success = $stmt->execute(array(
+                	':amount' => $amount,
+                	':brand' => $brand,
+                	':description' => $description,
+                	':date' => $date,
+			':petid' => $petid
+		));
         }
         else {		
-			$sql = 'INSERT INTO fitcat (petid, steps, activerhours, inactivehours, waterconsumption, foodconsumption, foodbrand, description, date)
-				VALUES (:petid, DEFAULT, DEFAULT, DEFAULT, , :amount, :brand, :description, :date)';
-			$stmt = $this->app['db']->prepare($sql);
-			$success = $stmt->execute(array(
-				':petid' => $petid,
-            	':amount' => $amount,
-            	':brand' => $brand,
-                ':description' => $description,
-            	':date' => $date
+		$sql = 'INSERT INTO fitcat (petid, steps, date) VALUES (:petid, :amount, :date)';
+		$stmt = $this->app['db']->prepare($sql);
+		$success = $stmt->execute(array(
+			':petid' => $petid,
+            		':amount' => $amount,
+            		':brand' => $brand,
+                	':description' => $description,
+            		':date' => $date
         	));	
-		}
+	}
 
-		if ($success) {
+	if ($success) {
             return new JsonResponse();
         } 
         else {

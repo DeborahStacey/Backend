@@ -38,19 +38,19 @@ class FitCatControllerProvider implements ControllerProviderInterface, ServicePr
         $controllers = $app['controllers_factory'];
 
         $controllers
-            ->get('/weight', 'api.fitcat:Weight')
+            ->post('/weight', 'api.fitcat:Weight')
         ;
 
         $controllers
-            ->get('/steps', 'api.fitcat:Steps')
+            ->post('/steps', 'api.fitcat:Steps')
         ;
 
         $controllers
-            ->get('/water', 'api.fitcat:Water')
+            ->post('/water', 'api.fitcat:Water')
         ;
         
         $controllers
-            ->get('/food', 'api.fitcat:Food')
+            ->post('/food', 'api.fitcat:Food')
         ;
 
         return $controllers;
