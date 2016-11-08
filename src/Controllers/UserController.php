@@ -220,10 +220,22 @@ class UserController
 
         $success = $this->app['api.auth']->CheckPassword($user['email'], $password);
 
+            $sql = 'update address SET locationid = :locationid, city = :city, street = :street, unit = :unit,  postalcode = :postalcode FROM address s INNER JOIN account a ON (a.addressid = s.addressid) WHERE a.userid = :userid';
+
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':locationid' => $address['locationID'],
+                ':city' => $address['city'],
+                ':street' => $address['street'],
+                ':unit' => $address['unit'],
+                ':postalcode' => $address['postalCode'],
+                ':userid' => $user['userId']
+	    ));
+
         if ($success) {
         $data = array(
             'success' => true,
-            'user' => $user['email'],
+            'user' => $user['userId'],
             'street' => $address['street'],
             'unit' => $address['unit'],
             'city' => $address['city'],
