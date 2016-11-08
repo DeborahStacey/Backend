@@ -1,6 +1,6 @@
 <?php
 
-namespace WellCat;
+namespace WellCat\Validators;
 
 class RequestValidationResult
 {
