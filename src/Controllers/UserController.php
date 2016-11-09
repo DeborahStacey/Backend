@@ -220,31 +220,36 @@ class UserController
 
         $success = $this->app['api.auth']->CheckPassword($user['email'], $password);
 
+        if ($success) {
+
             $sql = 'update address SET locationid = :locationid, city = :city, street = :street, unit = :unit,  postalcode = :postalcode FROM address s INNER JOIN account a ON (a.addressid = s.addressid) WHERE a.userid = :userid';
 
             $stmt = $this->app['db']->prepare($sql);
-            $success = $stmt->execute(array(
+            $submited = $stmt->execute(array(
                 ':locationid' => $address['locationID'],
                 ':city' => $address['city'],
                 ':street' => $address['street'],
                 ':unit' => $address['unit'],
                 ':postalcode' => $address['postalCode'],
                 ':userid' => $user['userId']
-	    ));
+	        ));
 
-        if ($success) {
-        $data = array(
-            'success' => true,
-            'user' => $user['userId'],
-            'street' => $address['street'],
-            'unit' => $address['unit'],
-            'city' => $address['city'],
-            'postal' => $address['postalCode'],
-            'locationid' => $address['locationID'],
-            'message' => 'password good, or something like that'
-        );
-        return new JsonResponse($data, 201);
-
+            if($submited){
+                $data = array(
+                    'success' => true,
+                    'user' => $user['userId'],
+                    'street' => $address['street'],
+                    'unit' => $address['unit'],
+                    'city' => $address['city'],
+                    'postal' => $address['postalCode'],
+                    'locationid' => $address['locationID'],
+                    'message' => 'tempresponse message values above were submitted'
+                );
+                return new JsonResponse($data, 201);
+        	}
+        	else {
+        		return JsonReponse::userError('Unable to update');
+        	}
 
         } 
         else {
