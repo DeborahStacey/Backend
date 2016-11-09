@@ -222,7 +222,7 @@ class UserController
 
         if ($success) {
 
-            $sql = 'update address SET locationid = :locationid, city = :city, street = :street, unit = :unit,  postalcode = :postalcode FROM address s INNER JOIN account a ON (a.addressid = s.addressid) WHERE a.userid = :userid';
+            $sql = 'update address SET locationid = :locationid, city = :city, street = :street, unit = :unit,  postalcode = :postalcode FROM account where account.addressid = address.addressid AND account.userid = :userid';
 
             $stmt = $this->app['db']->prepare($sql);
             $submited = $stmt->execute(array(
