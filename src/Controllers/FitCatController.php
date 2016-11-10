@@ -23,25 +23,25 @@ class FitCatController
         $amount = $request->request->get('amount');
 		
         // Validate parameters
-	if (!$petid) {
+	    if (!$petid) {
             return JsonResponse::missingParam('petid');
         }
- 	elseif (!$date) {
+ 	    elseif (!$date) {
             return JsonResponse::missingParam('date');
         }       
-	elseif (!$amount) {
+        elseif (!$amount) {
             return JsonResponse::missingParam('amount');
         }
 
-	$sql = 'UPDATE pet SET weight = :amount, lastupdated = :date WHERE petid = :petid';
-	$stmt = $this->app['db']->prepare($sql);
-	$success = $stmt->execute(array(
+    	$sql = 'UPDATE pet SET weight = :amount, lastupdated = :date WHERE petid = :petid';
+    	$stmt = $this->app['db']->prepare($sql);
+    	$success = $stmt->execute(array(
         	':amount' => $amount,
-		':date' => $date,
-                ':petid' => $petid
+            ':date' => $date,
+            ':petid' => $petid
         ));
 
-	// Check if a row exists in the table for the day, for that specific pet
+        // Check if a row exists in the table for the day, for that specific pet
         $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute(array(
@@ -89,14 +89,14 @@ class FitCatController
 		
         // Validate parameters
     	if (!$petid) {
-                return JsonResponse::missingParam('petid');
-            }
+            return JsonResponse::missingParam('petid');
+        }
      	elseif (!$date) {
-                return JsonResponse::missingParam('date');
-            }       
+            return JsonResponse::missingParam('date');
+        }       
     	elseif (!$amount) {
-                return JsonResponse::missingParam('amount');
-            }
+            return JsonResponse::missingParam('amount');
+        }
     	
     	// Check if a row exists in the table for the day, for that specific pet 
     	$sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
@@ -108,26 +108,26 @@ class FitCatController
 
     	$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
     		
-            if ($result) {
-        	    $sql = 'UPDATE fitcat SET steps = :amount WHERE petid = :petid AND date = :date';
-        		$stmt = $this->app['db']->prepare($sql);
-        		$success = $stmt->execute(array(
-                    ':amount' => $amount,
-        			':date' => $date,
-                    ':petid' => $petid
-                ));
-            }
-            else {		
-        		$sql = 'INSERT INTO fitcat (petid, steps, date) VALUES (:petid, :amount, :date)';
-        		$stmt = $this->app['db']->prepare($sql);
-        		$success = $stmt->execute(array(
-            		':petid' => $petid,
-                    ':amount' => $amount,
-                    ':date' => $date
+        if ($result) {
+            $sql = 'UPDATE fitcat SET steps = :amount WHERE petid = :petid AND date = :date';
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':amount' => $amount,
+                ':date' => $date,
+                ':petid' => $petid
+            ));
+        }
+        else {		
+            $sql = 'INSERT INTO fitcat (petid, steps, date) VALUES (:petid, :amount, :date)';
+        	$stmt = $this->app['db']->prepare($sql);
+        	$success = $stmt->execute(array(
+        		':petid' => $petid,
+                ':amount' => $amount,
+                ':date' => $date
             ));	
-	}
+        }
 
-	    if ($success) {
+        if ($success) {
             return new JsonResponse();
         } 
         else {
@@ -155,36 +155,36 @@ class FitCatController
             return JsonResponse::missingParam('amount');
         }
     
-	   // Check if a row exists in the table for the day, for that specific pet 
-	   $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
+	    // Check if a row exists in the table for the day, for that specific pet 
+	    $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':petid' => $petid,
             ':date' => $date
         ));
 
-	$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		
         if ($result) {
-		$sql = 'UPDATE fitcat SET waterconsumption = :amount WHERE petid = :petid AND date = :date';
-		$stmt = $this->app['db']->prepare($sql);
-		$success = $stmt->execute(array(
-            		':amount' => $amount,
-			':date' => $date,
-                	':petid' => $petid
-        	));
+    		$sql = 'UPDATE fitcat SET waterconsumption = :amount WHERE petid = :petid AND date = :date';
+    		$stmt = $this->app['db']->prepare($sql);
+    		$success = $stmt->execute(array(
+                ':amount' => $amount,
+    			':date' => $date,
+                ':petid' => $petid
+            ));
         }
         else {		
-		$sql = 'INSERT INTO fitcat (petid, waterconsumption, date) VALUES (:petid, :amount, :date)';
-		$stmt = $this->app['db']->prepare($sql);
-		$success = $stmt->execute(array(
-			':petid' => $petid,
+    		$sql = 'INSERT INTO fitcat (petid, waterconsumption, date) VALUES (:petid, :amount, :date)';
+    		$stmt = $this->app['db']->prepare($sql);
+    		$success = $stmt->execute(array(
+    			':petid' => $petid,
             		':amount' => $amount,
             		':date' => $date
-        	));	
-	}
+        	));	   
+        }
 
-	if ($success) {
+        if ($success) {
             return new JsonResponse();
         } 
         else {
@@ -200,60 +200,60 @@ class FitCatController
     	$petid = $request->request->get('petid');
     	$date= $request->request->get('date');
         $amount = $request->request->get('amount');
-	$brand = $request->request->get('brand');
-	$description = $request->request->get('description');
+    	$brand = $request->request->get('brand');
+    	$description = $request->request->get('description');
 		
         // Validate parameters
-	if (!$petid) {
+    	if (!$petid) {
             return JsonResponse::missingParam('petid');
         }
- 	elseif (!$date) {
+     	elseif (!$date) {
             return JsonResponse::missingParam('date');
         }       
-	elseif (!$amount) {
+    	elseif (!$amount) {
             return JsonResponse::missingParam('amount');
         }
- 	elseif (!$brand) {
+     	elseif (!$brand) {
             return JsonResponse::missingParam('brand');
         }       
-	elseif (!$description) {
+    	elseif (!$description) {
             return JsonResponse::missingParam('description');
         }
         
 	// Check if a row exists in the table for the day, for that specific pet 
-	$sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
+        $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute(array(
                 ':petid' => $petid,
                 ':date' => $date
         ));
 
-	$result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		
         if ($result) {
 		$sql = 'UPDATE fitcat SET foodconsumption = :amount, foodbrand = :brand, description = :description WHERE petid = :petid AND date = :date';
 		$stmt = $this->app['db']->prepare($sql);
 		$success = $stmt->execute(array(
-                	':amount' => $amount,
-                	':brand' => $brand,
-                	':description' => $description,
-                	':date' => $date,
-			':petid' => $petid
-		));
+            	':amount' => $amount,
+            	':brand' => $brand,
+            	':description' => $description,
+            	':date' => $date,
+    			':petid' => $petid
+            ));
         }
         else {		
 		$sql = 'INSERT INTO fitcat (petid, steps, date) VALUES (:petid, :amount, :date)';
 		$stmt = $this->app['db']->prepare($sql);
 		$success = $stmt->execute(array(
-			':petid' => $petid,
-            		':amount' => $amount,
-            		':brand' => $brand,
-                	':description' => $description,
-            		':date' => $date
+                ':petid' => $petid,
+            	':amount' => $amount,
+        		':brand' => $brand,
+            	':description' => $description,
+        		':date' => $date
         	));	
-	}
+        }
 
-	if ($success) {
+	   if ($success) {
             return new JsonResponse();
         } 
         else {
@@ -264,35 +264,33 @@ class FitCatController
         return new JsonResponse();
     }   
 
-	public function Pet()
+	public function Pets()
     {
-
         $user = $this->app['session']->get('user');
         
-        //get list of all pets that the current user owns
-        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user AND p.fitcat=true';
+        //Get all pet/fitcat data for personal cats
+        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated, f.steps, f.activerhours, f.inactivehours, f.waterconsumption, f.foodconsumption, f.foodbrand, f.description, f.date, f.weight FROM fitcat f INNER JOIN pet p ON f.petid = p.petid INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user AND p.fitcat=true';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':user' => $user['userId']
         ));
-
         $personal = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        //get list of all pets that current user has access to.
-        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user AND p.fitcat=true)';
+        //Get all pet/fitcat data for shared cats
+        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated, f.steps, f.activerhours, f.inactivehours, f.waterconsumption, f.foodconsumption, f.foodbrand, f.description, f.date, f.weight FROM fitcat f INNER JOIN pet p ON f.petid = p.petid INNER JOIN account a ON p.ownerid = a.userid WHERE p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user AND p.fitcat=true)';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':user' => $user['userId']
         ));
-
         $shared = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($personal || $shared) {
             $body = array(
                 'success' => true,
                 'personal' => $personal,
-                'shared' => $shared
+                'shared' => $shared,
             );
+
             return new JsonResponse($body, 200);
         }
         else {

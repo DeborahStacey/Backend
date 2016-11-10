@@ -54,7 +54,7 @@ class FitCatControllerProvider implements ControllerProviderInterface, ServicePr
         ;
 
 	$controllers
-            ->get('/pets', 'api.fitcat:Pet')
+            ->get('/pets', 'api.fitcat:Pets')
         ;
 
 	$controllers
