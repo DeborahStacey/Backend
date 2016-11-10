@@ -171,7 +171,7 @@ class PetController
     private function CreateCatPet($name, $breed, $gender, $dateOfBirth, $weight, $height, $length, $declawed, $outdoor, $fixed)
     {
         // Add pet to database
-        $sql = 'INSERT INTO pet_cat (ownerid, name, breedId, gender, dateofbirth, weight, height, length, declawed, outdoor, fixed)
+        $sql = 'INSERT INTO pet_cat (ownerid, name, breed, gender, dateofbirth, weight, height, length, declawed, outdoor, fixed)
             VALUES (:ownerId, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length, :declawed, :outdoor, :fixed)';
 
         $stmt = $this->app['db']->prepare($sql);
@@ -200,7 +200,7 @@ class PetController
     private function CreateGenericPet($name, $breed, $gender, $dateOfBirth, $weight, $height, $length)
     {
         // Add pet to database
-        $sql = 'INSERT INTO pet (ownerid, name, breedId, gender, dateofbirth, weight, height, length)
+        $sql = 'INSERT INTO pet (ownerid, name, breed, gender, dateofbirth, weight, height, length)
             VALUES (:ownerId, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length)';
 
         $stmt = $this->app['db']->prepare($sql);
