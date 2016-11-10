@@ -195,7 +195,8 @@ class UserController
         $password = $request->request->get('password');
         $address = $request->request->get('address');
         $user = $this->app['session']->get('user');
-
+        
+        //valadate user input
         if (!$password) {
             return JsonResponse::missingParam('password');
         }
@@ -222,6 +223,7 @@ class UserController
 
         if ($success) {
 
+            //update address table with user submitted information
             $sql = 'update address SET locationid = :locationid, city = :city, street = :street, unit = :unit,  postalcode = :postalcode FROM account where account.addressid = address.addressid AND account.userid = :userid';
 
             $stmt = $this->app['db']->prepare($sql);
@@ -234,26 +236,31 @@ class UserController
                 ':userid' => $user['userId']
 	        ));
 
+            // return response
             if($submited){
-                $data = array(
+                 $data = array(
                     'success' => true,
                     'message' => 'user updated'
-                );
-                return new JsonResponse($data, 201);
-        	}
-        	else {
-        		return JsonReponse::userError('Unable to update');
-        	}
-
+                 );
+                 return new JsonResponse($data, 201);
+            }
+            else {
+		//sql update failed
+                return JsonReponse::userError('Unable to update');
+            }
         } 
         else {
+            // user not logged in
             return JsonResponse::authError('Invalid User or Password');
         }
     }
+
+
     public function ViewUsr()
     {
         $user = $this->app['session']->get('user');
 
+        //select data form address and account related to our current user
         $sql = 'SELECT email, firstname, lastname, phonenumber, street, city, unit, locationid, postalcode FROM address s INNER JOIN account a ON a.addressid = s.addressid WHERE email = :email';
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
@@ -262,6 +269,7 @@ class UserController
 
 	$result = $stmt->fetchALL(\PDO::FETCH_ASSOC);
 
+        //return results 
         if($result){
             $data = array(
                 'success' => true,
