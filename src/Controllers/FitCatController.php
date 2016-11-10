@@ -264,7 +264,7 @@ class FitCatController
         return new JsonResponse();
     }   
 
-	public function Pets()
+    public function Pets()
     {
         $user = $this->app['session']->get('user');
         
@@ -302,26 +302,14 @@ class FitCatController
         }
     }
 
-    public function View($petid, $date)
+    public function View($petID)
     {
-        // Validate parameters
-        if (!$petid) {
-            return JsonResponse::missingParam('petid');
-        }
-
-	   /*if($date && DateTime::createFormat('Y-m-d',$date)) {
-			$dateQuery = 'AND date = :date';
-			$parameters = array(':petid' => $petid, ':date' => $date);
-		}
-		else {
-			$dateQuery = '';
-			$parameters = array(':petid' => $petid);
-		}
-        */
-
-		$sql ='SELECT * FROM fitcat WHERE petid = :petid'; //.$dateQuery;	
+        // TODO: validate parameters and throw exception if null
+		$sql ='SELECT * FROM fitcat WHERE petid = :petid';
         $stmt= $this->app['db']->prepare($sql);
-        $stmt->execute($parameters);
+        $stmt->execute(array( 
+            ':petid' => $petID
+        ));
 
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
