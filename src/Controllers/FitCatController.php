@@ -13,7 +13,7 @@ class FitCatController
     public function __construct(Application $app)
     {
         $this->app = $app;
-	$this->app['session']->start();
+        $this->app['session']->start();
     }
 
     public function Weight(Request $request)
@@ -23,7 +23,7 @@ class FitCatController
         $amount = $request->request->get('amount');
 		
         // Validate parameters
-	    if (!$petid) {
+        if (!$petid) {
             return JsonResponse::missingParam('petid');
         }
  	    elseif (!$date) {
@@ -45,29 +45,29 @@ class FitCatController
         $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute(array(
-                ':petid' => $petid,
-                ':date' => $date
+            ':petid' => $petid,
+            ':date' => $date
         ));
 
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         if ($result) {
-                $sql = 'UPDATE fitcat SET weight = :amount WHERE petid = :petid AND date = :date';
-                $stmt = $this->app['db']->prepare($sql);
-                $success = $stmt->execute(array(
-                        ':amount' => $amount,
-                        ':date' => $date,
-                        ':petid' => $petid
-                ));
+            $sql = 'UPDATE fitcat SET weight = :amount WHERE petid = :petid AND date = :date';
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':amount' => $amount,
+                ':date' => $date,
+                ':petid' => $petid
+            ));
         }
         else {
-                $sql = 'INSERT INTO fitcat (petid, weight, date) VALUES (:petid, :amount, :date)';
-                $stmt = $this->app['db']->prepare($sql);
-                $success = $stmt->execute(array(
-                        ':petid' => $petid,
-                        ':amount' => $amount,
-                        ':date' => $date
-                ));
+            $sql = 'INSERT INTO fitcat (petid, weight, date) VALUES (:petid, :amount, :date)';
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':petid' => $petid,
+                ':amount' => $amount,
+                ':date' => $date
+            ));
         }
 
         if ($success) {
@@ -119,9 +119,9 @@ class FitCatController
         }
         else {		
             $sql = 'INSERT INTO fitcat (petid, steps, date) VALUES (:petid, :amount, :date)';
-        	$stmt = $this->app['db']->prepare($sql);
-        	$success = $stmt->execute(array(
-        		':petid' => $petid,
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':petid' => $petid,
                 ':amount' => $amount,
                 ':date' => $date
             ));	
@@ -155,8 +155,8 @@ class FitCatController
             return JsonResponse::missingParam('amount');
         }
     
-	    // Check if a row exists in the table for the day, for that specific pet 
-	    $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
+        // Check if a row exists in the table for the day, for that specific pet 
+        $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':petid' => $petid,
@@ -231,29 +231,29 @@ class FitCatController
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		
         if ($result) {
-		$sql = 'UPDATE fitcat SET foodconsumption = :amount, foodbrand = :brand, description = :description WHERE petid = :petid AND date = :date';
-		$stmt = $this->app['db']->prepare($sql);
-		$success = $stmt->execute(array(
-            	':amount' => $amount,
-            	':brand' => $brand,
-            	':description' => $description,
-            	':date' => $date,
-    			':petid' => $petid
+            $sql = 'UPDATE fitcat SET foodconsumption = :amount, foodbrand = :brand, description = :description WHERE petid = :petid AND date = :date';
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':amount' => $amount,
+                ':brand' => $brand,
+                ':description' => $description,
+                ':date' => $date,
+                ':petid' => $petid
             ));
         }
         else {		
-		$sql = 'INSERT INTO fitcat (petid, steps, date) VALUES (:petid, :amount, :date)';
-		$stmt = $this->app['db']->prepare($sql);
-		$success = $stmt->execute(array(
+            $sql = 'INSERT INTO fitcat (petid, steps, date) VALUES (:petid, :amount, :date)';
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
                 ':petid' => $petid,
-            	':amount' => $amount,
-        		':brand' => $brand,
-            	':description' => $description,
-        		':date' => $date
-        	));	
+                ':amount' => $amount,
+                ':brand' => $brand,
+                ':description' => $description,
+                ':date' => $date
+            ));	
         }
 
-	   if ($success) {
+        if ($success) {
             return new JsonResponse();
         } 
         else {
@@ -305,7 +305,7 @@ class FitCatController
     public function View($petID)
     {
         // TODO: validate parameters and throw exception if null
-		$sql ='SELECT * FROM fitcat WHERE petid = :petid';
+        $sql ='SELECT * FROM fitcat WHERE petid = :petid';
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute(array( 
             ':petid' => $petID
