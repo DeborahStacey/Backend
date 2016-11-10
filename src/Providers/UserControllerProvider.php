@@ -65,9 +65,14 @@ class UserControllerProvider implements ControllerProviderInterface, ServiceProv
             ->before($userAuthenticate)
         ;
         $controllers
-            ->put('/update', 'api.user:updateUsr')
+            ->put('/update', 'api.user:UpdateUsr')
             ->before($userAuthenticate)
         ;
+        $controllers
+            ->get('/view', 'api.user:ViewUsr')
+            ->before($userAuthenticate)
+        ;
+
 
         return $controllers;
     }

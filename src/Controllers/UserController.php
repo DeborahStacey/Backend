@@ -189,7 +189,7 @@ class UserController
         }
     }
 
-    public function updateUsr(Request $request)
+    public function UpdateUsr(Request $request)
     {
 
         $password = $request->request->get('password');
@@ -237,13 +237,7 @@ class UserController
             if($submited){
                 $data = array(
                     'success' => true,
-                    'user' => $user['userId'],
-                    'street' => $address['street'],
-                    'unit' => $address['unit'],
-                    'city' => $address['city'],
-                    'postal' => $address['postalCode'],
-                    'locationid' => $address['locationID'],
-                    'message' => 'tempresponse message values above were submitted'
+                    'message' => 'user updated'
                 );
                 return new JsonResponse($data, 201);
         	}
@@ -256,4 +250,40 @@ class UserController
             return JsonResponse::authError('Invalid User or Password');
         }
     }
+    public function ViewUsr()
+    {
+        $user = $this->app['session']->get('user');
+
+        $sql = 'SELECT email, firstname, lastname, phonenumber, street, city, unit, locationid, postalcode FROM address s INNER JOIN account a ON a.addressid = s.addressid WHERE email = :email';
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+             ':email' => $user['email']
+        ));
+
+	$result = $stmt->fetchALL(\PDO::FETCH_ASSOC);
+
+        if($result){
+            $data = array(
+                'success' => true,
+                'userinfo' => $result
+            );
+            return new JsonResponse($data, 201);
+
+	}
+        else {
+
+            return JsonResponse::authError('Invalid User');
+
+        }
+
+    }
+
+
+
+
+
+
+
+
+
 }
