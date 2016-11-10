@@ -12,7 +12,11 @@ use WellCat\Providers\UserControllerProvider;
 use WellCat\Providers\PetControllerProvider;
 use WellCat\Providers\AddressControllerProvider;
 use WellCat\Providers\AnimalControllerProvider;
+<<<<<<< HEAD
 use WellCat\Providers\AdminPMControllerProvider;
+=======
+use WellCat\Providers\FitCatControllerProvider;
+>>>>>>> fitcatdev
 
 $app = new Silex\Application();
 $app['env'] = 'dev';
@@ -42,5 +46,9 @@ $app->mount('/animal', $animalConProv);
 $adminPMConProv = new AdminPMControllerProvider();
 $app->register($adminPMConProv);
 $app->mount('/PM', $adminPMConProv);
+
+$fitcatConProv = new FitCatControllerProvider();
+$app->register($fitcatConProv);
+$app->mount('/fitcat', $fitcatConProv);
 
 $app->run();
