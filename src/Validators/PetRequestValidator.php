@@ -16,7 +16,7 @@ class PetRequestValidator
         $this->app = $app;
     }
 
-    public function ValidateGenericPetCreationRequest(Request $request)
+    public function ValidatePetCreationRequest(Request $request)
     {
         $success = true;
         $error = null;
@@ -86,10 +86,23 @@ class PetRequestValidator
             );
         }
 
+        // Validate animal specific parameters if necessary
+        if ((int)$animalTypeID == 1) {
+            $catValidationResult = $this->ValidatePetCatCreationRequest($request);
+
+            if (!$catValidationResult->GetSuccess()) {
+                $success = $catValidationResult->GetSuccess();
+                $error = $catValidationResult->GetError();
+            }
+            else {
+                $parameters = array_merge($parameters, $catValidationResult->GetParameters());
+            }
+        }
+
         return new RequestValidationResult($success, $parameters, $error);
     }
 
-    public function ValidateCatPetCreationRequest(Request $request)
+    private function ValidatePetCatCreationRequest(Request $request)
     {
         $success = true;
         $error = null;
