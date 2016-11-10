@@ -53,11 +53,11 @@ class FitCatControllerProvider implements ControllerProviderInterface, ServicePr
             ->post('/food', 'api.fitcat:Food')
         ;
 
-	$controllers
+        $controllers
             ->get('/pets', 'api.fitcat:Pets')
         ;
 
-	$controllers
+        $controllers
             ->get('/view/{petID}', 'api.fitcat:View')
         ;
 
