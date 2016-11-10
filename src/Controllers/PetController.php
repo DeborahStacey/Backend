@@ -114,7 +114,7 @@ class PetController
             }
         }
         // else update if current accessibility is not the same as the one trying to be set
-        elseif ($currentAccess != $access) {
+        elseif ($currentAccess != $validationResult->GetParameter('access')) {
             $sql = 'UPDATE accessibility
                     SET access = :access
                     WHERE userid = :userid
