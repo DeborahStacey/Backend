@@ -42,6 +42,7 @@ class AdminPMController
         $weight = $request->request->get('weight');
         $height = $request->request->get('height');
         $length = $request->request->get('length');
+        $animal = $request->request->get('animal');
         $breed = $request->request->get('breed');
         $gender = $request->request->get('gender');
 
@@ -51,6 +52,9 @@ class AdminPMController
         }
         elseif (!$breed) {
             return JsonResponse::missingParam('breed');
+        }
+        elseif (!$animal) {
+            return JsonResponse::missingParam('animal');
         }
         elseif (!$gender) {
             return JsonResponse::missingParam('gender');
@@ -91,9 +95,30 @@ class AdminPMController
             ':length' => $length
         ));
 
-        if ($success) {
-            return new JsonResponse();
-        } 
+        if ($success && $animal == 1) {
+            //get petID from previous entry
+            $petID = $this->app['db']->lastInsertId('pet_petid_seq');
+
+            // Add cat to database
+            $sql = 'INSERT INTO pet_cat (petid, declawed, outdoor, fixed)
+                    VALUES (:petID, :declawed, :outdoor, :fixed)';
+
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':petID' => $petID,
+                ':declawed' => TRUE,
+                ':outdoor' => FALSE,
+                ':fixed' => TRUE
+            ));
+
+            if ($success) {
+                return new JsonResponse();
+            }
+            else {
+                //TODO: Need to remove the pet if it fails to add it originally.
+                return JsonReponse::userError('Unable to register pet.');
+            }
+        }
         else {          
             return JsonReponse::userError('Unable to register pet.');
         }

@@ -266,7 +266,7 @@ class UserController
         if ($success) {
 
             //update address table with user submitted information
-            $sql = 'update address SET locationid = :locationid, city = :city, street = :street, unit = :unit,  postalcode = :postalcode FROM account where account.addressid = address.addressid AND account.userid = :userid';
+            $sql = 'UPDATE address SET locationid = :locationid, city = :city, street = :street, unit = :unit,  postalcode = :postalcode FROM account WHERE account.addressid = address.addressid AND account.userid = :userid';
 
             $stmt = $this->app['db']->prepare($sql);
             $submited = $stmt->execute(array(
@@ -276,7 +276,7 @@ class UserController
                 ':unit' => $address['unit'],
                 ':postalcode' => $address['postalCode'],
                 ':userid' => $user['userId']
-	        ));
+            ));
 
             // return response
             if($submited){
@@ -287,7 +287,7 @@ class UserController
                  return new JsonResponse($data, 201);
             }
             else {
-		//sql update failed
+                //sql update failed
                 return JsonReponse::userError('Unable to update');
             }
         } 
@@ -309,31 +309,21 @@ class UserController
              ':email' => $user['email']
         ));
 
-	$result = $stmt->fetchALL(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         //return results 
-        if($result){
+        if ($result) {
             $data = array(
                 'success' => true,
                 'userinfo' => $result
             );
-            return new JsonResponse($data, 201);
+            return new JsonResponse($data, 200);
 
-	}
+        }
         else {
-
             return JsonResponse::authError('Invalid User');
 
         }
 
     }
-
-
-
-
-
-
-
-
-
 }
