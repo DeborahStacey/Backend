@@ -36,6 +36,7 @@ class PetController
         if (!$validationResult->GetSuccess()) {
             return $validationResult->GetError();
         }
+        //TODO: Check if gender exists.
 
         if ($validationResult->GetParameter('animalTypeID') == 1) {
             $catValidationResult = $this->app['api.petrequestvalidator']->ValidateCatPetCreationRequest($request);
