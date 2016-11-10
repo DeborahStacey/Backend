@@ -166,22 +166,22 @@ class FitCatController
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		
         if ($result) {
-    		$sql = 'UPDATE fitcat SET waterconsumption = :amount WHERE petid = :petid AND date = :date';
-    		$stmt = $this->app['db']->prepare($sql);
-    		$success = $stmt->execute(array(
+            $sql = 'UPDATE fitcat SET waterconsumption = :amount WHERE petid = :petid AND date = :date';
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
                 ':amount' => $amount,
-    			':date' => $date,
+                ':date' => $date,
                 ':petid' => $petid
             ));
         }
         else {		
-    		$sql = 'INSERT INTO fitcat (petid, waterconsumption, date) VALUES (:petid, :amount, :date)';
-    		$stmt = $this->app['db']->prepare($sql);
-    		$success = $stmt->execute(array(
-    			':petid' => $petid,
-            		':amount' => $amount,
-            		':date' => $date
-        	));	   
+            $sql = 'INSERT INTO fitcat (petid, waterconsumption, date) VALUES (:petid, :amount, :date)';
+            $stmt = $this->app['db']->prepare($sql);
+            $success = $stmt->execute(array(
+                ':petid' => $petid,
+                ':amount' => $amount,
+                ':date' => $date
+            ));	   
         }
 
         if ($success) {
@@ -224,8 +224,8 @@ class FitCatController
         $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute(array(
-                ':petid' => $petid,
-                ':date' => $date
+            ':petid' => $petid,
+            ':date' => $date
         ));
 
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
