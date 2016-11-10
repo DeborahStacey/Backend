@@ -61,6 +61,12 @@ class PetController
 
     public function SetAccessibility(Request $request)
     {
+        $validationResult = $this->app['api.petrequestvalidator']->ValidateSetPetAccessibilityRequest($request);
+
+        if (!$validationResult->GetSuccess()) {
+            return $validationResult->GetError();
+        }
+
         // Get parameters
         $email = $request->request->get('email');
         $petID = $request->request->get('petID');
@@ -84,14 +90,14 @@ class PetController
         }
 
         // Get userID from email
-        $userID = $this->app['api.auth']->GetUserIDByEmail($email);
+        $userID = $this->app['api.auth']->GetUserIDByEmail($validationResult->GetParameter('email'));
 
         if (!$userID) {
             return JsonResponse::userError('Email provided is not associated with an existing WellCat account');
         }
 
         // Check to see if user already has accessibility with pet
-        $currentAccess = $this->GetPetAccessibility($userID, $petID);
+        $currentAccess = $this->GetPetAccessibility($userID, $validationResult->GetParameter('petID'));
 
         // If no accessibility found, insert
         if (!$currentAccess) {
@@ -101,8 +107,8 @@ class PetController
             $stmt = $this->app['db']->prepare($sql);
             $success = $stmt->execute(array(
                 ':userid' => $userID,
-                ':petid' => $petID,
-                ':access' => $access
+                ':petid' => $validationResult->GetParameter('petID'),
+                ':access' => $validationResult->GetParameter('access')
             ));
 
             if ($success) {
@@ -122,8 +128,8 @@ class PetController
             $stmt = $this->app['db']->prepare($sql);
             $success = $stmt->execute(array(
                 ':userid' => $userID,
-                ':petid' => $petID,
-                ':access' => $access
+                ':petid' => $validationResult->GetParameter('petID'),
+                ':access' => $validationResult->GetParameter('access')
             ));
 
             if ($success) {
@@ -278,7 +284,7 @@ class PetController
                 'success' => true,
                 'message' => 'No pets found'
             );
-            
+
             return new JsonResponse($body, 404);
         }
     }

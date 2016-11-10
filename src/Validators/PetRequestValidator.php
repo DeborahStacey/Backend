@@ -123,4 +123,47 @@ class PetRequestValidator
 
         return new RequestValidationResult($success, $parameters, $error);
     }
+
+    public function ValidateSetPetAccessibilityRequest(Request $request)
+    {
+        $success = true;
+        $error = null;
+        $parameters = null;
+
+        // Get parameters
+        $email = $request->request->get('email');
+        $petID = $request->request->get('petID');
+        $access = $request->request->get('access');
+
+        // Validate parameters
+        if (!$email) {
+            $success = false;
+            $error = JsonResponse::missingParam('email');
+        }
+        elseif (!$petID) {
+            $success = false;
+            $error = JsonResponse::missingParam('petID');
+        }
+        elseif (!$access) {
+            $success = false;
+            $error = JsonResponse::missingParam('access');
+        }
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $success = false;
+            $error = JsonResponse::userError('Invalid email');
+        }
+        elseif (!$this->app['api.dbtypes']->IsValidPetAccessibilityValue($access)) {
+            $success = false;
+            $error = JsonResponse::userError('Invalid accessibility value');
+        }
+        else {
+            $parameters = Array(
+                'petID' => $petID,
+                'email' => $email,
+                'access' => $access
+            );
+        }
+
+        return new RequestValidationResult($success, $parameters, $error);
+    }
 }
