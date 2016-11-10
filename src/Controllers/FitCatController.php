@@ -305,8 +305,6 @@ class FitCatController
     public function View($petID)
     {
         // TODO: validate parameters and throw exception if null
-
-
         
         $sql ='SELECT * FROM fitcat WHERE petid = :petid';
         $stmt= $this->app['db']->prepare($sql);
