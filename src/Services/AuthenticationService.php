@@ -52,6 +52,25 @@ class AuthenticationService
         }
     }
 
+    public function AuthenticateAdmin($access)
+    {
+        $user = $this->app['session']->get('user');
+
+        $userType = $this->GetUserTypeByID($user['userId']);
+
+        $sql = 'SELECT NULL FROM useraccess WHERE usertypeid = :userType AND '.$access.' = TRUE';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(':userType' => $userType));
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$result) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
     public function GetUserIDByEmail($email)
     {
         // TODO: Validate email and throw exception if invalid
@@ -88,6 +107,19 @@ class AuthenticationService
         else {
             return false;
         }
+    }
+
+    private function GetUserTypeByID($userID) {
+        $sql = 'SELECT usertype FROM account WHERE userid = :userID';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(':userID' => $userID));
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result == false) {
+            return null;
+        }
+
+        return (int)$result['usertype'];
     }
 
     private function SetSessionUser($email)

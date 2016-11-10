@@ -68,9 +68,10 @@ class PetController
         elseif (!$this->app['api.animalservice']->CheckBreedExists($breed)) {
             return JsonResponse::userError('Invalid breed.');
         }
+        //TODO: Check if gender exists.
 
         // Add pet to database
-        $sql = 'INSERT INTO pet (ownerid, name, breedId, gender, dateofbirth, weight, height, length)
+        $sql = 'INSERT INTO pet (ownerid, name, breed, gender, dateofbirth, weight, height, length)
             VALUES (:ownerId, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length)';
 
         $stmt = $this->app['db']->prepare($sql);
