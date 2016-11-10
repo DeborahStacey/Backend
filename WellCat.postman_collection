@@ -23,6 +23,7 @@
 	"timestamp": 1475760848798,
 	"owner": "744928",
 	"public": false,
+	"hasRequests": true,
 	"requests": [
 		{
 			"id": "2919d1f7-f377-900e-e9cc-225256357fe3",
@@ -127,7 +128,8 @@
 			"method": "POST",
 			"data": [],
 			"dataMode": "raw",
-			"tests": "var response = JSON.parse(responseBody);\ntests[\"Response time is less than 400ms\"] = responseTime < 400;\ntests[\"Status code is 200\"] = responseCode.code === 200;\ntests[\"User was registered\"] = response.success === true;\n",
+			"version": 2,
+			"tests": "var response = JSON.parse(responseBody);\ntests[\"Response time is less than 400ms\"] = responseTime < 400;\ntests[\"Status code is 201\"] = responseCode.code === 201;\ntests[\"Pet accessibility was set\"] = response.success === true;\n",
 			"currentHelper": "normal",
 			"helperAttributes": {},
 			"time": 1477260430433,
