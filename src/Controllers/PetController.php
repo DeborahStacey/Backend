@@ -246,25 +246,31 @@ class PetController
     {
         $user = $this->app['session']->get('user');
 
-        //get list of all pets that current user has access to.
-        $sql = 'SELECT p.petid AS petID, p.name, p.gender, a.firstname, a.lastname, p.lastupdated AS lastUpdated
-                FROM pet p
-                  INNER JOIN account a ON p.ownerid = a.userid
-                WHERE (p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user))
-                  OR p.ownerid = :user';
-
+        //get list of all pets that the current user owns
+        $sql = 'SELECT p.petid, p.name, p.gender, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':user' => $user['userId']
         ));
 
-        $pets = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $personal = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        if ($pets) {
+        //get list of all pets that current user has access to.
+        $sql = 'SELECT p.petid AS petID, p.name, p.gender, a.firstname, a.lastname, p.lastupdated AS lastUpdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user)';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+            ':user' => $user['userId']
+        ));
+
+        $shared = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if ($personal || $shared) {
             $body = array(
                 'success' => true,
-                'pets' => $pets
+                'personal' => $personal,
+                'shared' => $shared
             );
+
             return new JsonResponse($body, 200);
         }
         else {
@@ -272,6 +278,7 @@ class PetController
                 'success' => true,
                 'message' => 'No pets found'
             );
+            
             return new JsonResponse($body, 404);
         }
     }
