@@ -25,6 +25,7 @@ class AnimalService
         $stmt->execute(array(
           ':breedid' => $breedId
         ));
+
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($result) {
