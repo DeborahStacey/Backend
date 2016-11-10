@@ -253,8 +253,40 @@ class PetController
             }
         }
 
-        $sql = 'SELECT get_pet(:petID, \'pet_cursor\'); FETCH ALL FROM \"pet_cursor\";';
-        //$sql = 'SELECT name, breedid AS breedID, gender, dateofbirth AS dateOfBirth, weight, height, length FROM pet WHERE petid = :petID';
+        // get animal type
+        $sql = 'SELECT B.animaltypeid
+                FROM pet P
+	                INNER JOIN breed B ON B.breedid = P.breed
+                WHERE P.petid = :petID';
+
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+            ':petID' => $petID
+        ));
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$result) {
+            $body = array(
+                    'success' => false,
+                    'error' => 'Server error - could not get given pet\'s breed'
+            );
+
+            return new JsonResponse ($body, 500);
+        }
+        // Get pet + cat info
+        elseif ((int)$result['animaltypeid'] == 1) {
+            $sql = 'SELECT name, breed, gender, dateofbirth AS dateOfBirth, weight, height, length, declawed, outdoor, fixed
+                    FROM pet_cat
+                    WHERE petid = :petID;';
+        }
+        // Get generic pet info
+        else {
+            $sql = 'SELECT name, breed, gender, dateofbirth AS dateOfBirth, weight, height, length
+                    FROM pet
+                    WHERE petid = :petID;';
+        }
+
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':petID' => $petID
