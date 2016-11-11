@@ -1,23 +1,23 @@
 <?php
-
 namespace WellCat\Providers;
 
 use Silex\Application;
 use Silex\ControllerCollection;
 use Silex\ControllerProviderInterface;
 use Silex\ServiceProviderInterface;
-use WellCat\Controllers\PetController;
+use WellCat\Controllers\FitCatController;
 use WellCat\JsonResponse;
 
-class PetControllerProvider  implements ControllerProviderInterface, ServiceProviderInterface
+class FitCatControllerProvider implements ControllerProviderInterface, ServiceProviderInterface
 {
+
     /**
      * Registers
      */
     public function register(Application $app)
     {
-        $app['api.pet'] = $app->share(function () use ($app) {
-            return new PetController($app);
+        $app['api.fitcat'] = $app->share(function () use ($app) {
+            return new FitCatController($app);
         });
     }
 
@@ -30,11 +30,12 @@ class PetControllerProvider  implements ControllerProviderInterface, ServiceProv
      * Returns routes to connect to the given application.
      *
      * @param Application $app An Application instance
+     *
      * @return ControllerCollection A ControllerCollection instance
      */
     public function connect(Application $app)
     {
-         $userAuthenticate = function () use ($app) {
+        $userAuthenticate = function () use ($app) {
             if ($app['api.auth']->Authenticated() == false) {
                 $body = array(
                     'success' => 'false',
@@ -47,25 +48,39 @@ class PetControllerProvider  implements ControllerProviderInterface, ServiceProv
         $controllers = $app['controllers_factory'];
 
         $controllers
-            ->post('/create', 'api.pet:Create')
+            ->post('/weight', 'api.fitcat:Weight')
             ->before($userAuthenticate)
         ;
 
         $controllers
-            ->post('/accessibility', 'api.pet:SetAccessibility')
+            ->post('/steps', 'api.fitcat:Steps')
             ->before($userAuthenticate)
         ;
 
         $controllers
-            ->get('/view/{petID}', 'api.pet:GetPet')
+            ->post('/water', 'api.fitcat:Water')
+            ->before($userAuthenticate)
+        ;
+        
+        $controllers
+            ->post('/food', 'api.fitcat:Food')
             ->before($userAuthenticate)
         ;
 
         $controllers
-            ->get('/pets', 'api.pet:GetAllPets')
+            ->get('/pets', 'api.fitcat:Pets')
             ->before($userAuthenticate)
         ;
 
-        return $controllers;
+        $controllers
+            ->get('/view/{petID}', 'api.fitcat:View')
+            ->before($userAuthenticate)
+        ;
+
+    	//$controllers
+        //    ->get('/view/{petid}/{date}', 'api.fitcat:View')
+        //;
+        
+	return $controllers;
     }
 }
