@@ -269,7 +269,7 @@ class FitCatController
         $user = $this->app['session']->get('user');
         
         //Get all pet/fitcat data for personal cats
-        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated, f.steps, f.activerhours, f.inactivehours, f.waterconsumption, f.foodconsumption, f.foodbrand, f.description, f.date, f.weight FROM fitcat f INNER JOIN pet p ON f.petid = p.petid INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user AND p.fitcat=true';
+        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user AND p.fitcat=true';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':user' => $user['userId']
@@ -277,7 +277,7 @@ class FitCatController
         $personal = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         //Get all pet/fitcat data for shared cats
-        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated, f.steps, f.activerhours, f.inactivehours, f.waterconsumption, f.foodconsumption, f.foodbrand, f.description, f.date, f.weight FROM fitcat f INNER JOIN pet p ON f.petid = p.petid INNER JOIN account a ON p.ownerid = a.userid WHERE p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user AND p.fitcat=true)';
+        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.fitcat=true AND p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user)';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':user' => $user['userId']
@@ -295,7 +295,7 @@ class FitCatController
         }
         else {
             $body = array(
-                'success' => true,
+                'success' => false,
                 'message' => 'No pets found'
             );
             return new JsonResponse($body, 404);
@@ -304,18 +304,26 @@ class FitCatController
 
     public function View($petID)
     {
-        // TODO: validate parameters and throw exception if null
-        
+        //first checks to see if petID is accessable by the user.
+        if (!$this->CheckPetOwnership($petID)) {
+            $body = array(
+                'success' => false,
+                'message' => 'Pet not found'
+            );
+            return new JsonResponse($body, 404);
+        }
 
-
+        //
+        //f.steps, f.activerhours, f.inactivehours, f.waterconsumption, f.foodconsumption, f.foodbrand, f.description, f.date, f.weight
+        //
         
-        $sql ='SELECT * FROM fitcat WHERE petid = :petid';
+        $sql ='SELECT p.petid, p.name, p.gender, p.breed, p.lastupdated FROM pet p WHERE p.petid = :petID';
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute(array( 
-            ':petid' => $petID
+            ':petID' => $petID
         ));
 
-        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         $body = array(
             'success' => true,
@@ -324,7 +332,53 @@ class FitCatController
 
         return new JsonResponse($body,200);
 
+    }
+
+
+    /**
+     * Function checks the ownership of a pet based on the current user
+     * returns 2 if owner or writeable access, 1 if read only, and false if not accessable.
+     * @param [int] $petID holds the id value of a pet.
+     */
+    private function CheckPetOwnership($petID)
+    {
+        $user = $this->app['session']->get('user');
+
+        $sql ='SELECT NULL FROM pet WHERE petid = :petID AND ownerid = :userID';
+        $stmt= $this->app['db']->prepare($sql);
+        $stmt->execute(array( 
+            ':petID' => $petID,
+            ':userID' => $user['userId']
+        ));
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result) {
+            return 2;
         }
+        else {
+            $sql ='SELECT access FROM accessibility WHERE petid = :petID AND userid = :userID';
+            $stmt= $this->app['db']->prepare($sql);
+            $stmt->execute(array( 
+                ':petID' => $petID,
+                ':userID' => $user['userId']
+            ));
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            //if a result is found deal with it accordingly otherwise return 0;
+            if ($result) {
+                if($result['access'] == 'write') {
+                    return 2;
+                }
+                else {
+                    return 1;
+                }
+            }
+            else {
+                return 0;
+            }
+        }
+    }
 }
 
 
