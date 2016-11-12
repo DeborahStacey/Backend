@@ -43,10 +43,10 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) < 2) {
+        elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
             $body = array(
                 'success' => false,
-                'message' => 'Pet not accessible'
+                'message' => $this->CheckPetOwnership($petID)
             );
             return new JsonResponse($body, 404);
         }
@@ -121,7 +121,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) < 2) {
+        elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
             $body = array(
                 'success' => false,
                 'message' => 'Pet not accessible'
@@ -192,7 +192,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) < 2) {
+        elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
             $body = array(
                 'success' => false,
                 'message' => 'Pet not accessible'
@@ -271,7 +271,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) < 2) {
+        elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
             $body = array(
                 'success' => false,
                 'message' => 'Pet not accessible'
