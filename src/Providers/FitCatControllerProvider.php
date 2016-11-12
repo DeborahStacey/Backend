@@ -77,6 +77,16 @@ class FitCatControllerProvider implements ControllerProviderInterface, ServicePr
             ->before($userAuthenticate)
         ;
 
+        $controllers
+            ->post('/register', 'api.fitcat:Register')
+            ->before($userAuthenticate)
+        ;
+
+        $controllers
+            ->post('/deregister', 'api.fitcat:DeRegister')
+            ->before($userAuthenticate)
+        ;
+
     	//$controllers
         //    ->get('/view/{petid}/{date}', 'api.fitcat:View')
         //;

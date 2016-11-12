@@ -334,10 +334,74 @@ class FitCatController
 
     }
 
+    public function Register(Request $request)
+    {
+        //gets parameters
+        $petID = $request->request->get('petID');
+
+        //validates parameters
+        if (!$petID) {
+            return JsonResponse::missingParam('petID');
+        }
+        elseif ($this->CheckPetOwnership($petID) != 3) {
+            $body = array(
+                'success' => false,
+                'message' => 'Pet not found'
+            );
+            return new JsonResponse($body, 404);
+        }
+
+        $sql = 'UPDATE pet SET fitcat = TRUE WHERE petid = :petID';
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+            ':petID' => $petID
+        ));
+
+        if ($success) {
+            return new JsonResponse(null,201);
+        }
+        else {
+            return JsonResponse::serverError();
+        }
+
+    }
+
+
+    public function DeRegister(Request $request)
+    {
+        //gets parameters
+        $petID = $request->request->get('petID');
+
+        //validates parameters
+        if (!$petID) {
+            return JsonResponse::missingParam('petID');
+        }
+        elseif ($this->CheckPetOwnership($petID) != 3) {
+            $body = array(
+                'success' => false,
+                'message' => 'Pet not found'
+            );
+            return new JsonResponse($body, 404);
+        }
+
+        $sql = 'UPDATE pet SET fitcat = FALSE WHERE petid = :petID';
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+            ':petID' => $petID
+        ));
+
+        if ($success) {
+            return new JsonResponse(null,201);
+        }
+        else {
+            return JsonResponse::serverError();
+        }
+
+    }
 
     /**
      * Function checks the ownership of a pet based on the current user
-     * returns 2 if owner or writeable access, 1 if read only, and false if not accessable.
+     * returns 3 if owner, 2 if writeable access, 1 if read only, and false if not accessable.
      * @param [int] $petID holds the id value of a pet.
      */
     private function CheckPetOwnership($petID)
@@ -354,7 +418,7 @@ class FitCatController
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($result) {
-            return 2;
+            return 3;
         }
         else {
             $sql ='SELECT access FROM accessibility WHERE petid = :petID AND userid = :userID';
