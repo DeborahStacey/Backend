@@ -43,7 +43,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) != 3) {
+        elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
                 'message' => 'Pet not accessible'
@@ -121,7 +121,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) != 3) {
+        elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
                 'message' => 'Pet not accessible'
@@ -192,7 +192,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) != 3) {
+        elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
                 'message' => 'Pet not accessible'
@@ -271,7 +271,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) != 3) {
+        elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
                 'message' => 'Pet not accessible'
@@ -420,7 +420,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif ($this->CheckPetOwnership($petID) != 3) {
+        elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
                 'message' => 'Pet not found'
@@ -456,7 +456,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif ($this->CheckPetOwnership($petID) != 3) {
+        elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
                 'message' => 'Pet not found'
