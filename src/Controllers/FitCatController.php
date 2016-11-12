@@ -33,6 +33,15 @@ class FitCatController
             return JsonResponse::missingParam('amount');
         }
 
+        //first checks to see if petID is accessable by the user (write-access).
+        if ($this->CheckPetOwnership($petid) != 2) {
+            $body = array(
+                'success' => false,
+                'message' => 'Pet not accessible'
+            );
+            return new JsonResponse($body, 404);
+        }
+
     	$sql = 'UPDATE pet SET weight = :amount, lastupdated = :date WHERE petid = :petid';
     	$stmt = $this->app['db']->prepare($sql);
     	$success = $stmt->execute(array(
@@ -98,6 +107,15 @@ class FitCatController
             return JsonResponse::missingParam('amount');
         }
     	
+        //first checks to see if petID is accessable by the user (write-access).
+        if ($this->CheckPetOwnership($petid) != 2) {
+            $body = array(
+                'success' => false,
+                'message' => 'Pet not accessible'
+            );
+            return new JsonResponse($body, 404);
+        }
+
     	// Check if a row exists in the table for the day, for that specific pet 
     	$sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
@@ -155,6 +173,15 @@ class FitCatController
             return JsonResponse::missingParam('amount');
         }
     
+        //first checks to see if petID is accessable by the user (write-access).
+        if ($this->CheckPetOwnership($petid) != 2) {
+            $body = array(
+                'success' => false,
+                'message' => 'Pet not accessible'
+            );
+            return new JsonResponse($body, 404);
+        }
+
         // Check if a row exists in the table for the day, for that specific pet 
         $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
@@ -220,7 +247,16 @@ class FitCatController
             return JsonResponse::missingParam('description');
         }
         
-	// Check if a row exists in the table for the day, for that specific pet 
+        //first checks to see if petID is accessable by the user (write-access).
+        if ($this->CheckPetOwnership($petid) != 2) {
+            $body = array(
+                'success' => false,
+                'message' => 'Pet not accessible'
+            );
+            return new JsonResponse($body, 404);
+        }
+
+        // Check if a row exists in the table for the day, for that specific pet 
         $sql ='SELECT * FROM fitcat WHERE petid = :petid AND date = :date';
         $stmt= $this->app['db']->prepare($sql);
         $stmt->execute(array(
@@ -242,7 +278,7 @@ class FitCatController
             ));
         }
         else {		
-            $sql = 'INSERT INTO fitcat (petid, steps, date) VALUES (:petid, :amount, :date)';
+            $sql = 'INSERT INTO fitcat (petid, steps, foodbrand, description, date) VALUES (:petid, :amount, :brand, :description, :date)';
             $stmt = $this->app['db']->prepare($sql);
             $success = $stmt->execute(array(
                 ':petid' => $petid,
