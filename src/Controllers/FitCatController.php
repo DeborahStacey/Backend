@@ -43,7 +43,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
+        elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
                 'error' => $this->CheckPetOwnership($petID)
@@ -115,7 +115,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
+        elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not accessible'
@@ -180,7 +180,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
+        elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not accessible'
@@ -253,7 +253,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
+        elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not accessible'
@@ -269,7 +269,7 @@ class FitCatController
             ':date' => $date
         ));
 
-        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         
         if ($result) {
             $sql = 'UPDATE fitcat SET foodconsumption = :amount, foodbrand = :brand, description = :description WHERE petid = :petID AND date = :date';
@@ -342,10 +342,6 @@ class FitCatController
             );
             return new JsonResponse($body, 404);
         }
-
-        //
-        //f.steps, f.activerhours, f.inactivehours, f.waterconsumption, f.foodconsumption, f.foodbrand, f.description, f.date, f.weight
-        //
         
         $sql = 'SELECT weight, steps, waterconsumption, foodconsumption, foodbrand, description, date FROM fitcat WHERE petid = :petID';
         $stmt = $this->app['db']->prepare($sql);
@@ -353,7 +349,7 @@ class FitCatController
             ':petID' => $petID
         ));
 
-        $fitcatResults = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $fitcatResults = $stmt->fetch(\PDO::FETCH_ASSOC);
         
         $sql = 'SELECT petid, name, gender, breed, weight, lastupdated FROM pet WHERE petid = :petID AND fitcat = TRUE';
         $stmt = $this->app['db']->prepare($sql);
@@ -394,7 +390,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif ($this->CheckPetOwnership($petID) < 2) {
+        elseif ($this->CheckPetOwnership($petID) != 3) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not found'
@@ -430,7 +426,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif ($this->CheckPetOwnership($petID) < 2) {
+        elseif ($this->CheckPetOwnership($petID) != 3) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not found'
