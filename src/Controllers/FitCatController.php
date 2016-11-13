@@ -59,7 +59,7 @@ class FitCatController
         ));
 
         // Check if a row exists in the table for the day, for that specific pet
-        $sql = 'SELECT NULL FROM fitcat f INNER JOIN pet p WHERE f.petid = :petID AND f.date = :date AND p.fitcat = TRUE';
+        $sql = 'SELECT NULL FROM fitcat WHERE petid = :petID AND date = :date';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':petID' => $petID,
@@ -459,12 +459,12 @@ class FitCatController
     {
         $addition = ' ';
         if ($fitcat) {
-            $addition = ' AND fitcat = TRUE';
+            $addition = " AND p.fitcat = true";
         }
 
         $user = $this->app['session']->get('user');
 
-        $sql = 'SELECT NULL FROM pet WHERE petid = :petID AND ownerid = :userID'.$addition;
+        $sql = 'SELECT NULL FROM pet p WHERE p.petid = :petID AND p.ownerid = :userID'.$addition;
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array( 
             ':petID' => $petID,
@@ -477,7 +477,7 @@ class FitCatController
             return 3;
         }
         else {
-            $sql = 'SELECT access FROM accessibility WHERE petid = :petID AND userid = :userID'.$addition;
+            $sql = 'SELECT a.access FROM accessibility a INNER JOIN pet p ON a.petid = p.petid WHERE a.petid = :petID AND a.userid = :userID'.$addition;
             $stmt = $this->app['db']->prepare($sql);
             $stmt->execute(array( 
                 ':petID' => $petID,
