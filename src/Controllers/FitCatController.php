@@ -46,7 +46,7 @@ class FitCatController
         elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
             $body = array(
                 'success' => false,
-                'message' => $this->CheckPetOwnership($petID)
+                'error' => $this->CheckPetOwnership($petID)
             );
             return new JsonResponse($body, 404);
         }
@@ -59,33 +59,27 @@ class FitCatController
         ));
 
         // Check if a row exists in the table for the day, for that specific pet
-        $sql = 'SELECT * FROM fitcat WHERE petid = :petID AND date = :date';
+        $sql = 'SELECT NULL FROM fitcat WHERE petid = :petID AND date = :date';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':petID' => $petID,
             ':date' => $date
         ));
 
-        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         if ($result) {
             $sql = 'UPDATE fitcat SET weight = :weight WHERE petid = :petID AND date = :date';
-            $stmt = $this->app['db']->prepare($sql);
-            $success = $stmt->execute(array(
-                ':weight' => $weight,
-                ':date' => $date,
-                ':petID' => $petID
-            ));
         }
         else {
             $sql = 'INSERT INTO fitcat (petid, weight, date) VALUES (:petID, :weight, :date)';
-            $stmt = $this->app['db']->prepare($sql);
-            $success = $stmt->execute(array(
-                ':petID' => $petID,
-                ':weight' => $weight,
-                ':date' => $date
-            ));
         }
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+            ':petID' => $petID,
+            ':weight' => $weight,
+            ':date' => $date
+        ));
 
         if ($success) {
             return new JsonResponse();
@@ -124,39 +118,33 @@ class FitCatController
         elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
             $body = array(
                 'success' => false,
-                'message' => 'Pet not accessible'
+                'error' => 'Pet not accessible'
             );
             return new JsonResponse($body, 404);
         }
 
         // Check if a row exists in the table for the day, for that specific pet 
-        $sql = 'SELECT * FROM fitcat WHERE petid = :petID AND date = :date';
+        $sql = 'SELECT NULL FROM fitcat WHERE petid = :petID AND date = :date';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array( 
             ':petID' => $petID,
             ':date' => $date
         ));
 
-        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
             
         if ($result) {
             $sql = 'UPDATE fitcat SET steps = :steps WHERE petid = :petID AND date = :date';
-            $stmt = $this->app['db']->prepare($sql);
-            $success = $stmt->execute(array(
-                ':steps' => $steps,
-                ':date' => $date,
-                ':petID' => $petID
-            ));
         }
         else {      
             $sql = 'INSERT INTO fitcat (petid, steps, date) VALUES (:petID, :steps, :date)';
-            $stmt = $this->app['db']->prepare($sql);
-            $success = $stmt->execute(array(
-                ':petID' => $petID,
-                ':steps' => $steps,
-                ':date' => $date
-            )); 
         }
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+            ':petID' => $petID,
+            ':steps' => $steps,
+            ':date' => $date
+        ));
 
         if ($success) {
             return new JsonResponse();
@@ -195,39 +183,33 @@ class FitCatController
         elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
             $body = array(
                 'success' => false,
-                'message' => 'Pet not accessible'
+                'error' => 'Pet not accessible'
             );
             return new JsonResponse($body, 404);
         }
 
         // Check if a row exists in the table for the day, for that specific pet 
-        $sql = 'SELECT * FROM fitcat WHERE petid = :petID AND date = :date';
+        $sql = 'SELECT NULL FROM fitcat WHERE petid = :petID AND date = :date';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':petID' => $petID,
             ':date' => $date
         ));
 
-        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         
         if ($result) {
             $sql = 'UPDATE fitcat SET waterconsumption = :amount WHERE petid = :petID AND date = :date';
-            $stmt = $this->app['db']->prepare($sql);
-            $success = $stmt->execute(array(
-                ':amount' => $amount,
-                ':date' => $date,
-                ':petID' => $petID
-            ));
         }
         else {      
             $sql = 'INSERT INTO fitcat (petid, waterconsumption, date) VALUES (:petID, :amount, :date)';
-            $stmt = $this->app['db']->prepare($sql);
-            $success = $stmt->execute(array(
-                ':petID' => $petID,
-                ':amount' => $amount,
-                ':date' => $date
-            ));    
         }
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+            ':petID' => $petID,
+            ':amount' => $amount,
+            ':date' => $date
+        )); 
 
         if ($success) {
             return new JsonResponse();
@@ -274,13 +256,13 @@ class FitCatController
         elseif ($this->CheckPetOwnership($petID) < 2 || $this->CheckPetOwnership($petID) == FALSE) {
             $body = array(
                 'success' => false,
-                'message' => 'Pet not accessible'
+                'error' => 'Pet not accessible'
             );
             return new JsonResponse($body, 404);
         }
 
         // Check if a row exists in the table for the day, for that specific pet 
-        $sql = 'SELECT * FROM fitcat WHERE petid = :petID AND date = :date';
+        $sql = 'SELECT NULL FROM fitcat WHERE petid = :petID AND date = :date';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':petID' => $petID,
@@ -291,26 +273,18 @@ class FitCatController
         
         if ($result) {
             $sql = 'UPDATE fitcat SET foodconsumption = :amount, foodbrand = :brand, description = :description WHERE petid = :petID AND date = :date';
-            $stmt = $this->app['db']->prepare($sql);
-            $success = $stmt->execute(array(
-                ':amount' => $amount,
-                ':brand' => $brand,
-                ':description' => $description,
-                ':date' => $date,
-                ':petID' => $petID
-            ));
         }
         else {      
             $sql = 'INSERT INTO fitcat (petid, foodconsumption, foodbrand, description, date) VALUES (:petID, :amount, :brand, :description, :date)';
-            $stmt = $this->app['db']->prepare($sql);
-            $success = $stmt->execute(array(
-                ':petID' => $petID,
-                ':amount' => $amount,
-                ':brand' => $brand,
-                ':description' => $description,
-                ':date' => $date
-            )); 
         }
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+            ':petID' => $petID,
+            ':amount' => $amount,
+            ':brand' => $brand,
+            ':description' => $description,
+            ':date' => $date
+        ));
 
         if ($success) {
             return new JsonResponse();
@@ -352,7 +326,7 @@ class FitCatController
         else {
             $body = array(
                 'success' => false,
-                'message' => 'No pets found'
+                'error' => 'No pets found'
             );
             return new JsonResponse($body, 404);
         }
@@ -364,7 +338,7 @@ class FitCatController
         if (!$this->CheckPetOwnership($petID)) {
             $body = array(
                 'success' => false,
-                'message' => 'Pet not found'
+                'error' => 'Pet not found'
             );
             return new JsonResponse($body, 404);
         }
@@ -401,7 +375,7 @@ class FitCatController
         else {
             $body = array(
                 'success' => false,
-                'message' => 'Pet not found'
+                'error' => 'Pet not found'
             );
             return new JsonResponse($body, 404);
         }
@@ -423,7 +397,7 @@ class FitCatController
         elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
-                'message' => 'Pet not found'
+                'error' => 'Pet not found'
             );
             return new JsonResponse($body, 404);
         }
@@ -459,7 +433,7 @@ class FitCatController
         elseif ($this->CheckPetOwnership($petID) < 2) {
             $body = array(
                 'success' => false,
-                'message' => 'Pet not found'
+                'error' => 'Pet not found'
             );
             return new JsonResponse($body, 404);
         }
