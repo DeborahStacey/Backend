@@ -46,7 +46,7 @@ class FitCatController
         elseif ($this->CheckPetOwnership($petID,TRUE) < 2) {
             $body = array(
                 'success' => false,
-                'error' => 'Pet not accessible'
+                'error' => 'Pet not found'
             );
             return new JsonResponse($body, 404);
         }
@@ -82,7 +82,7 @@ class FitCatController
         ));
 
         if ($success) {
-            return new JsonResponse();
+            return new JsonResponse(null,201);
         } 
         else {
             return JsonReponse::userError('Unable to update weight');
@@ -118,7 +118,7 @@ class FitCatController
         elseif ($this->CheckPetOwnership($petID,TRUE) < 2) {
             $body = array(
                 'success' => false,
-                'error' => 'Pet not accessible'
+                'error' => 'Pet not found'
             );
             return new JsonResponse($body, 404);
         }
@@ -147,7 +147,7 @@ class FitCatController
         ));
 
         if ($success) {
-            return new JsonResponse();
+            return new JsonResponse(null,201);
         } 
         else {
             return JsonReponse::userError('Unable to update steps');
@@ -183,7 +183,7 @@ class FitCatController
         elseif ($this->CheckPetOwnership($petID,TRUE) < 2) {
             $body = array(
                 'success' => false,
-                'error' => 'Pet not accessible'
+                'error' => 'Pet not found'
             );
             return new JsonResponse($body, 404);
         }
@@ -212,7 +212,7 @@ class FitCatController
         )); 
 
         if ($success) {
-            return new JsonResponse();
+            return new JsonResponse(null,201);
         } 
         else {
             return JsonReponse::userError('Unable to update water');
@@ -256,7 +256,7 @@ class FitCatController
         elseif ($this->CheckPetOwnership($petID,TRUE) < 2) {
             $body = array(
                 'success' => false,
-                'error' => 'Pet not accessible'
+                'error' => 'Pet not found'
             );
             return new JsonResponse($body, 404);
         }
@@ -287,7 +287,7 @@ class FitCatController
         ));
 
         if ($success) {
-            return new JsonResponse();
+            return new JsonResponse(null,201);
         } 
         else {
             return JsonReponse::userError('Unable to update food');
@@ -349,9 +349,9 @@ class FitCatController
             ':petID' => $petID
         ));
 
-        $fitcatResults = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $fitcatResults = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         
-        $sql = 'SELECT petid, name, gender, breed, weight, lastupdated FROM pet WHERE petid = :petID AND fitcat = TRUE';
+        $sql = 'SELECT petid, name, gender, breed, weight, lastupdated FROM pet WHERE petid = :petID';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array( 
             ':petID' => $petID
