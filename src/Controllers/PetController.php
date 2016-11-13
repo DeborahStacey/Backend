@@ -298,7 +298,7 @@ class PetController
         $user = $this->app['session']->get('user');
 
         //get list of all pets that the current user owns
-        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user';
+        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user ORDER BY p.petid ASC';
 
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
@@ -308,7 +308,7 @@ class PetController
         $personal = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         //get list of all pets that current user has access to.
-        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user)';
+        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user) ORDER BY p.petid ASC';
 
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(

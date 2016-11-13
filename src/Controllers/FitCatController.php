@@ -299,7 +299,7 @@ class FitCatController
         $user = $this->app['session']->get('user');
         
         //Get all pet/fitcat data for personal cats
-        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user AND p.fitcat=true';
+        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.ownerid = :user AND p.fitcat=true ORDER BY p.petid ASC';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':user' => $user['userId']
@@ -307,7 +307,7 @@ class FitCatController
         $personal = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         //Get all pet/fitcat data for shared cats
-        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.fitcat=true AND p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user)';
+        $sql = 'SELECT p.petid, p.name, p.gender, p.breed, a.firstname, a.lastname, p.lastupdated FROM pet p INNER JOIN account a ON p.ownerid = a.userid WHERE p.fitcat=true AND p.petid IN (SELECT f.petid FROM accessibility f WHERE f.userid = :user) ORDER BY p.petid ASC';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':user' => $user['userId']
@@ -343,7 +343,7 @@ class FitCatController
             return new JsonResponse($body, 404);
         }
         
-        $sql = 'SELECT weight, steps, waterconsumption, foodconsumption, foodbrand, description, date FROM fitcat WHERE petid = :petID';
+        $sql = 'SELECT weight, steps, waterconsumption, foodconsumption, foodbrand, description, date FROM fitcat WHERE petid = :petID ORDER BY date DESC';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array( 
             ':petID' => $petID
