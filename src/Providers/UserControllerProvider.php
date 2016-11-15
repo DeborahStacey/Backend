@@ -64,15 +64,20 @@ class UserControllerProvider implements ControllerProviderInterface, ServiceProv
             ->put('/changePassword', 'api.user:ChangePassword')
             ->before($userAuthenticate)
         ;
+
         $controllers
             ->put('/update', 'api.user:UpdateUsr')
             ->before($userAuthenticate)
         ;
+
         $controllers
             ->get('/view', 'api.user:ViewUsr')
             ->before($userAuthenticate)
         ;
 
+        $controllers
+            ->get('/logout', 'api.user:Logout')
+        ;
 
         return $controllers;
     }
