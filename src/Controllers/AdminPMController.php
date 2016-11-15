@@ -42,7 +42,7 @@ class AdminPMController
         $weight = $request->request->get('weight');
         $height = $request->request->get('height');
         $length = $request->request->get('length');
-        $animal = $request->request->get('animal');
+        $animal = $request->request->get('animalTypeID');
         $breed = $request->request->get('breed');
         $gender = $request->request->get('gender');
 
@@ -106,9 +106,9 @@ class AdminPMController
             $stmt = $this->app['db']->prepare($sql);
             $success = $stmt->execute(array(
                 ':petID' => $petID,
-                ':declawed' => TRUE,
-                ':outdoor' => FALSE,
-                ':fixed' => TRUE
+                ':declawed' => "true",
+                ':outdoor' => "false",
+                ':fixed' => "true"
             ));
 
             if ($success) {
