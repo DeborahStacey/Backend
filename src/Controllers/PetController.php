@@ -141,6 +141,58 @@ class PetController
     }
 
     /**
+     * Function removes sharing of one pet to another user in the system
+     * @param Request $request holds JSON data of user and pet info in order to remove a pet share with someone else
+     *       =>[text] email holds the email in format (*@*.*)
+     *       =>[int] petID hold the petID of a pet in the system
+     */
+    public function RemoveAccessibility(Request $request)
+    {
+        $email = $request->request->get('email');
+        $petID = $request->request->get('petID');
+        // Get userID from email
+        $userID = $this->app['api.auth']->GetUserIDByEmail($email);
+
+
+        if (!$email) {
+            return JsonResponse::missingParam('email');
+        }
+        elseif (!$petID) {
+            return JsonResponse::missingParam('petID');
+        }
+        elseif (!$userID) {
+            return JsonResponse::userError('Email provided is not associated with an existing WellCat account');
+        }
+        elseif (is_integer($petID)) {
+            return JsonResponse::userError('Invlid petID');
+        }
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return JsonResponse::userError('Invalid email');
+        }
+        elseif ($this->GetPetAccessibility($userID,$petID) == null) {
+            return JsonResponse::userError('No pet share found');
+        }
+
+        $sql = 'DELETE FROM accessibility WHERE petid = :petID AND userid = :userID';
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+            ':petID' => $petID,
+            ':userID' => $userID
+        ));
+
+        if ($success) {
+            return new JsonResponse(null,201);
+        }
+        else {
+            $body = array(
+                'success' => false,
+                'error' => 'Unable to remove shared pet.'
+            );
+            return new JsonResponse($body,404);
+        }
+    }
+
+    /**
      * Function adds a pet to the system
      * @param [string] $name holds the name of the pet
      * @param [int] $breed holds the breedID of the pet
@@ -216,7 +268,7 @@ class PetController
         $user = $this->app['session']->get('user');
 
         //checks if user owns the pet
-        $sql = 'SELECT NULL FROM pet WHERE petid = :petID AND ownerid = :user';
+        $sql = 'SELECT B.animaltypeid FROM pet P INNER JOIN breed B ON B.breedid = P.breed WHERE P.petid = :petID AND P.ownerid = :user';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
             ':petID' => $petID,
@@ -228,40 +280,26 @@ class PetController
         //if user doesn't own the pet checks to see if they have access to the 
         //pet and if not a error message is returned to the caller
         if (!$result) {
-            $petAccess = $this->GetPetAccessibility($user['userId'], $petID);
-            if (!$petAccess) {
+            $sql = 'SELECT B.animaltypeid FROM accessibility A INNER JOIN pet P ON P.petid = A.petid INNER JOIN breed B ON B.breedid = P.breed WHERE A.userid = :user AND A.petid = :petID';
+            $stmt = $this->app['db']->prepare($sql);
+            $stmt->execute(array(
+                ':petID' => $petID,
+                ':user' => $user['userId']
+            ));
+
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if (!$result) {
                 $body = array(
                     'success' => false,
-                    'error' => 'You do not have access to this pet'
+                    'error' => 'Pet not found'
                 );
 
-                return new JsonResponse ($body, 403);
+                return new JsonResponse ($body, 404);
             }
         }
 
-        // get animal type
-        $sql = 'SELECT B.animaltypeid
-                FROM pet P
-	                INNER JOIN breed B ON B.breedid = P.breed
-                WHERE P.petid = :petID';
-
-        $stmt = $this->app['db']->prepare($sql);
-        $stmt->execute(array(
-            ':petID' => $petID
-        ));
-
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        if (!$result) {
-            $body = array(
-                    'success' => false,
-                    'error' => 'Server error - could not get given pet\'s breed'
-            );
-
-            return new JsonResponse ($body, 500);
-        }
         // Get pet + cat info
-        elseif ((int)$result['animaltypeid'] == 1) {
+        if ((int)$result['animaltypeid'] == 1) {
             $sql = 'SELECT P.name, P.breed, P.gender, P.dateofbirth AS dateOfBirth, P.weight, P.height, P.length, PC.declawed, PC.outdoor, PC.fixed
                     FROM pet P
                         INNER JOIN pet_cat PC ON PC.petid = P.petid
