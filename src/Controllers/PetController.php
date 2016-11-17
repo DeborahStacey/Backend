@@ -53,7 +53,7 @@ class PetController
         }
 
         // Add animal specific parameters if necessary
-        if ($validationResult->GetParameter('animalTypeID') == 1) {
+        if ($validationResult->GetParameter('animalID') == 1) {
             $success = $this->AddPetCatDetails(
                 $petID, 
                 $validationResult->GetParameter('declawed'),
@@ -163,7 +163,7 @@ class PetController
         elseif (!$userID) {
             return JsonResponse::userError('Email provided is not associated with an existing WellCat account');
         }
-        elseif (!is_integer($petID)) {
+        elseif (!is_int($petID)) {
             return JsonResponse::userError('Invlid petID');
         }
         elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

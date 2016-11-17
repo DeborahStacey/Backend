@@ -24,7 +24,7 @@ class PetRequestValidator
 
         // Get parameters
         $name = $request->request->get('name');
-        $animalTypeID = $request->request->get('animalTypeID');
+        $animalID = $request->request->get('animalID');
         $breed = $request->request->get('breed');
         $gender = $request->request->get('gender');
         $dateOfBirth = $request->request->get('dateOfBirth');
@@ -37,9 +37,9 @@ class PetRequestValidator
             $success = false;
             $error = JsonResponse::missingParam('name');
         }
-        elseif (!$animalTypeID) {
+        elseif (!$animalID) {
             $success = false;
-            $error = JsonResponse::missingParam('animalTypeID');
+            $error = JsonResponse::missingParam('animalID');
         }
         elseif (!$breed) {
             $success = false;
@@ -76,7 +76,7 @@ class PetRequestValidator
         else {
             $parameters = Array(
                 'name' => $name,
-                'animalTypeID' => $animalTypeID,
+                'animalID' => $animalID,
                 'breed' => $breed,
                 'gender' => $gender,
                 'dateOfBirth' => $dateOfBirth,
@@ -87,7 +87,7 @@ class PetRequestValidator
         }
 
         // Validate animal specific parameters if necessary
-        if ((int)$animalTypeID == 1) {
+        if ((int)$animalID == 1) {
             $catValidationResult = $this->ValidatePetCatCreationRequest($request);
 
             if (!$catValidationResult->GetSuccess()) {

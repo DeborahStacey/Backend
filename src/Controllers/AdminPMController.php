@@ -54,7 +54,7 @@ class AdminPMController
             return JsonResponse::missingParam('breed');
         }
         elseif (!$animal) {
-            return JsonResponse::missingParam('animal');
+            return JsonResponse::missingParam('animalID');
         }
         elseif (!$gender) {
             return JsonResponse::missingParam('gender');
@@ -137,7 +137,7 @@ class AdminPMController
             }
         }
         elseif($success) {
-            return new JsonResponse(null,201)
+            return new JsonResponse(null,201);
         }
         else {          
             return JsonResponse::userError('Unable to register pet.');

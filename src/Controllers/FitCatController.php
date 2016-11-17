@@ -363,11 +363,11 @@ class FitCatController
 
         // Get pet + cat info
         if ((int)$result['animaltypeid'] == 1) {
-            $sql = 'SELECT P.name, P.breed, P.gender, P.dateofbirth, P.weight, P.height, P.length, PC.declawed, PC.outdoor, PC.fixed FROM pet P INNER JOIN pet_cat PC ON PC.petid = P.petid WHERE P.petid = :petID;';
+            $sql = 'SELECT P.name, P.breed, P.gender, P.dateofbirth, P.weight, P.height, P.length, PC.declawed, PC.outdoor, PC.fixed, P.lastupdated FROM pet P INNER JOIN pet_cat PC ON PC.petid = P.petid WHERE P.petid = :petID;';
         }
         // Get generic pet info
         else {
-            $sql = 'SELECT name, breed, gender, dateofbirth, weight, height, length FROM pet WHERE petid = :petID;';
+            $sql = 'SELECT name, breed, gender, dateofbirth, weight, height, length, lastupdated FROM pet WHERE petid = :petID;';
         }
 
         $stmt = $this->app['db']->prepare($sql);
