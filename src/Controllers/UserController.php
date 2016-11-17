@@ -272,7 +272,7 @@ class UserController
     {
 
         $password = $request->request->get('password');
-        $phone = $request->request->get('phone');
+        $phone = $request->request->get('phoneNumber');
         $address = $request->request->get('address');
         $user = $this->app['session']->get('user');
         
@@ -284,7 +284,7 @@ class UserController
             return JsonResponse::missingParam('address');
         }
         elseif (!$phone) {
-            return JsonResponse::missingParam('phone');
+            return JsonResponse::missingParam('phoneNumber');
         }
         elseif (!$address['street']) {
             return JsonResponse::missingParam('address(street)');
@@ -302,7 +302,7 @@ class UserController
             return JsonResponse::missingParam('address(locationID)');
         }
         elseif (!is_string($phone)) {
-            return JsonResponse::userError('phone needs to be a string');
+            return JsonResponse::userError('phoneNumber needs to be a string');
         }
         elseif (!is_string($password)) {
             return JsonResponse::userError('password needs to be a string');
