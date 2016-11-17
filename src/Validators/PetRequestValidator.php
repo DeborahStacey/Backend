@@ -65,6 +65,30 @@ class PetRequestValidator
             $success = false;
             $error = JsonResponse::missingParam('length');
         }
+        elseif (!is_string($name)) {
+            $success = false;
+            $error = JsonResponse::userError('name needs to be a string');
+        }
+        elseif(!$this->app['api.animalservice']->CheckAnimalExists($animalID)) {
+            $success = false;
+            $error = JsonResponse::userError('animal needs to be a int and valid');
+        }
+        elseif(!$this->app['api.animalservice']->CheckGenderExists($gender)) {
+            $success = false;
+            $error = JsonResponse::userError('gender  needs to be a int and valid');
+        }
+        elseif(!is_numeric($weight)) {
+            $success = false;
+            $error = JsonResponse::userError('weight needs to be a number');
+        }
+        elseif(!is_numeric($height)) {
+            $success = false;
+            $error = JsonResponse::userError('height needs to be a number');
+        }
+        elseif(!is_numeric($length)) {
+            $success = false;
+            $error = JsonResponse::userError('length needs to be a number');
+        }
         elseif (!DateTime::createFromFormat('Y-m-d', $dateOfBirth)) {
             $success = false;
             $error = JsonResponse::userError('Invalid date.');
