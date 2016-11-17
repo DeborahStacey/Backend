@@ -163,7 +163,7 @@ class PetController
         elseif (!$userID) {
             return JsonResponse::userError('Email provided is not associated with an existing WellCat account');
         }
-        elseif (is_integer($petID)) {
+        elseif (!is_integer($petID)) {
             return JsonResponse::userError('Invlid petID');
         }
         elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

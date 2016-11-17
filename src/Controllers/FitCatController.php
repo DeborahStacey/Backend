@@ -36,7 +36,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif (!is_real($weight) && !is_int($weight)) {
+        elseif (!is_numeric($weight)) {
             return JsonResponse::userError('Invalid weight');
         }
         elseif (!DateTime::createFromFormat('Y-m-d', $date)) {
@@ -173,7 +173,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif (!is_real($amount) && !is_int($amount)) {
+        elseif (!is_numeric($amount)) {
             return JsonResponse::userError('Invalid water amount');
         }
         elseif (!DateTime::createFromFormat('Y-m-d', $date)) {
@@ -246,7 +246,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif (!is_real($amount) && !is_int($amount)) {
+        elseif (!is_numeric($amount)) {
             return JsonResponse::userError('Invalid food amount');
         }
         elseif (!DateTime::createFromFormat('Y-m-d', $date)) {

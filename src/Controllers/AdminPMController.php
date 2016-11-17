@@ -42,7 +42,7 @@ class AdminPMController
         $weight = $request->request->get('weight');
         $height = $request->request->get('height');
         $length = $request->request->get('length');
-        $animal = $request->request->get('animalTypeID');
+        $animal = $request->request->get('animalID');
         $breed = $request->request->get('breed');
         $gender = $request->request->get('gender');
 
@@ -71,13 +71,30 @@ class AdminPMController
         elseif (!$length) {
             return JsonResponse::missingParam('length');
         }
+        elseif(!$this->app['api.animalservice']->CheckAnimalExists($animal)) {
+            return JsonResponse::userError('Invalid animal');
+        }
+        elseif(!is_string($petName)) {
+            return JsonResponse::userError('Invalid name');
+        }
+        elseif(!$this->app['api.animalservice']->CheckGenderExists($gender)) {
+            return JsonResponse::userError('Invalid gender');
+        }
         elseif (!DateTime::createFromFormat('Y-m-d', $dateOfBirth)) {
             return JsonResponse::userError('Invalid date.');
         }
         elseif (!$this->app['api.animalservice']->CheckBreedExists($breed)) {
             return JsonResponse::userError('Invalid breed.');
         }
-        //TODO: Check if gender exists.
+        elseif(!is_numeric($weight)) {
+            return JsonResponse::userError('Invalid weight');
+        }
+        elseif(!is_numeric($height)) {
+            return JsonResponse::userError('Invalid height');
+        }
+        elseif(!is_numeric($length)) {
+            return JsonResponse::userError('Invalid length');
+        }
         
         // Add pet to database
         $sql = 'INSERT INTO pet (ownerid, name, breed, gender, dateofbirth, weight, height, length)
@@ -116,11 +133,14 @@ class AdminPMController
             }
             else {
                 //TODO: Need to remove the pet if it fails to add it originally.
-                return JsonReponse::userError('Unable to register pet.');
+                return JsonResponse::userError('Unable to create pet.');
             }
         }
+        elseif($success) {
+            return new JsonResponse(null,201)
+        }
         else {          
-            return JsonReponse::userError('Unable to register pet.');
+            return JsonResponse::userError('Unable to register pet.');
         }
 
     }
