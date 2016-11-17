@@ -42,7 +42,7 @@ class AdminPMController
         $weight = $request->request->get('weight');
         $height = $request->request->get('height');
         $length = $request->request->get('length');
-        $animal = $request->request->get('animalID');
+        $animal = $request->request->get('animalTypeID');
         $breed = $request->request->get('breed');
         $gender = $request->request->get('gender');
 
@@ -54,7 +54,7 @@ class AdminPMController
             return JsonResponse::missingParam('breed');
         }
         elseif (!$animal) {
-            return JsonResponse::missingParam('animalID');
+            return JsonResponse::missingParam('animalTypeID');
         }
         elseif (!$gender) {
             return JsonResponse::missingParam('gender');

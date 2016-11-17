@@ -24,7 +24,7 @@ class PetRequestValidator
 
         // Get parameters
         $name = $request->request->get('name');
-        $animalID = $request->request->get('animalID');
+        $animalID = $request->request->get('animalTypeID');
         $breed = $request->request->get('breed');
         $gender = $request->request->get('gender');
         $dateOfBirth = $request->request->get('dateOfBirth');
@@ -39,7 +39,7 @@ class PetRequestValidator
         }
         elseif (!$animalID) {
             $success = false;
-            $error = JsonResponse::missingParam('animalID');
+            $error = JsonResponse::missingParam('animalTypeID');
         }
         elseif (!$breed) {
             $success = false;
