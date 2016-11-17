@@ -13,17 +13,61 @@ class AnimalService
         $this->app = $app;
     }
 
-    public function CheckBreedExists($breedId)
+    public function CheckBreedExists($breedID)
     {
-        if (!$breedId || !is_numeric($breedId)) {
+        if (!$breedID || !is_int($breedID)) {
             return false;
         }
 
-        $sql = 'SELECT NULL FROM breed WHERE breedid = :breedid';
+        $sql = 'SELECT NULL FROM breed WHERE breedid = :breedID';
 
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
-          ':breedid' => $breedId
+          ':breedID' => $breedID
+        ));
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function CheckAnimalExists($animalID)
+    {
+        if (!$animalID || !is_int($animalID)) {
+            return false;
+        }
+
+        $sql = 'SELECT NULL FROM animal WHERE animaltypeid = :animalID';
+
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+          ':animalID' => $animalID
+        ));
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function CheckGenderExists($genderID)
+    {
+        if (!$genderID || !is_int($genderID)) {
+            return false;
+        }
+
+        $sql = 'SELECT NULL FROM gender WHERE genderid = :genderID';
+
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+          ':genderID' => $genderID
         ));
 
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);

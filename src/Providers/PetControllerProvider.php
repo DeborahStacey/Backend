@@ -57,6 +57,11 @@ class PetControllerProvider  implements ControllerProviderInterface, ServiceProv
         ;
 
         $controllers
+            ->delete('/accessibility', 'api.pet:RemoveAccessibility')
+            ->before($userAuthenticate)
+        ;
+
+        $controllers
             ->get('/view/{petID}', 'api.pet:GetPet')
             ->before($userAuthenticate)
         ;

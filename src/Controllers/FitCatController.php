@@ -36,7 +36,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif (!is_real($weight) && !is_int($weight)) {
+        elseif (!is_numeric($weight)) {
             return JsonResponse::userError('Invalid weight');
         }
         elseif (!DateTime::createFromFormat('Y-m-d', $date)) {
@@ -173,7 +173,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif (!is_real($amount) && !is_int($amount)) {
+        elseif (!is_numeric($amount)) {
             return JsonResponse::userError('Invalid water amount');
         }
         elseif (!DateTime::createFromFormat('Y-m-d', $date)) {
@@ -246,7 +246,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif (!is_real($amount) && !is_int($amount)) {
+        elseif (!is_numeric($amount)) {
             return JsonResponse::userError('Invalid food amount');
         }
         elseif (!DateTime::createFromFormat('Y-m-d', $date)) {
@@ -342,6 +342,7 @@ class FitCatController
             );
             return new JsonResponse($body, 404);
         }
+
         
         $sql = 'SELECT weight, steps, waterconsumption, foodconsumption, foodbrand, description, date FROM fitcat WHERE petid = :petID ORDER BY date DESC';
         $stmt = $this->app['db']->prepare($sql);
@@ -350,10 +351,27 @@ class FitCatController
         ));
 
         $fitcatResults = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        
-        $sql = 'SELECT petid, name, gender, breed, weight, lastupdated FROM pet WHERE petid = :petID';
+
+        //gets the animal type
+        $sql = 'SELECT B.animaltypeid FROM breed B INNER JOIN pet P ON P.breed = B.breedid WHERE P.petid = :petID';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array( 
+            ':petID' => $petID
+        ));
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+
+        // Get pet + cat info
+        if ((int)$result['animaltypeid'] == 1) {
+            $sql = 'SELECT P.name, P.breed, P.gender, P.dateofbirth, P.weight, P.height, P.length, PC.declawed, PC.outdoor, PC.fixed, P.lastupdated FROM pet P INNER JOIN pet_cat PC ON PC.petid = P.petid WHERE P.petid = :petID;';
+        }
+        // Get generic pet info
+        else {
+            $sql = 'SELECT name, breed, gender, dateofbirth, weight, height, length, lastupdated FROM pet WHERE petid = :petID;';
+        }
+
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
             ':petID' => $petID
         ));
 

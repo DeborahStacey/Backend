@@ -2,6 +2,7 @@
 namespace WellCat\Services;
 
 use Silex\Application;
+use PDO;
 
 class AddressService
 {
@@ -33,4 +34,23 @@ class AddressService
             return -1;
         }
     }
+
+    public function CheckLocation($locationID)
+    {
+        $sql = 'SELECT NULL FROM location WHERE locationid = :locationID';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(':locationID' => $locationID));
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if($result) {
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
+
+
 }

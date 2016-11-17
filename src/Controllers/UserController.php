@@ -86,6 +86,33 @@ class UserController
         elseif (!$address['locationID']) {
             return JsonResponse::missingParam('address(locationID)');
         }
+        elseif (!is_string($password)) {
+            return JsonResponse::userError('password needs to be a string');
+        }
+        elseif (!is_string($first)) {
+            return JsonResponse::userError('firstName needs to be a string');
+        }
+        elseif (!is_string($last)) {
+            return JsonResponse::userError('lastName needs to be a string');
+        }
+        elseif (!is_string($address['street'])) {
+            return JsonResponse::userError('address[\'street\'] needs to be a string');
+        }
+        elseif (!is_string($address['unit'])) {
+            return JsonResponse::userError('address[\'unit\'] needs to be a string');
+        }
+        elseif (!is_string($address['city'])) {
+            return JsonResponse::userError('address[\'city\'] needs to be a string');
+        }
+        elseif (!is_string($address['postalCode'])) {
+            return JsonResponse::userError('address[\'postalCode\'] needs to be a string');
+        }
+        elseif (!is_int($address['locationID'])) {
+            return JsonResponse::userError('address[\'locationID\'] needs to be an integer');
+        }
+        elseif (!$this->app['api.address']->CheckLocation($address['locationID'])) {
+            return JsonResponse::userError('address[\'locationID\'] not found');
+        }
         elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return JsonResponse::userError('Invalid email');
         } 
@@ -110,7 +137,7 @@ class UserController
             return JsonReponse::userError('Unable to register');
         } 
         //Checks to see if there were any returned values and if so the email already exists
-        else if ($stmt->fetch(\PDO::FETCH_ASSOC) != false) {
+        else if ($stmt->fetch(PDO::FETCH_ASSOC) != false) {
             $body = array(
                 'success' => false,
                 'error' => 'Email already in use'
@@ -163,10 +190,13 @@ class UserController
         //checks parameters for accuracy and existence
         if (!$email) {
             return JsonResponse::missingParam('email');
-        } 
+        }
         elseif (!$password) {
             return JsonResponse::missingParam('password');
-        } 
+        }
+        elseif (!is_string($password)) {
+            return JsonResponse::userError('password needs to be a string');
+        }
         elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return JsonResponse::userError('Invalid email');
         }
@@ -178,7 +208,7 @@ class UserController
             return new JsonResponse();
         } 
         else {
-            return JsonResponse::authError('Incorrect email or password');
+            return JsonResponse::authError('Incorrect email or password',401);
         }
     }
 
@@ -202,6 +232,13 @@ class UserController
         elseif (!$newPassword) {
             return JsonResponse::missingParam('newPassword');
         }
+        elseif (!is_string($oldPassword)) {
+            return JsonResponse::userError('oldPassword needs to be a string');
+        }
+        elseif (!is_string($newPassword)) {
+            return JsonResponse::userError('newPassword needs to be a string');
+        }
+
 
         /*
         Will add in later.
@@ -227,7 +264,7 @@ class UserController
             return new JsonResponse();
         }
         else {
-            return JsonResponse::authError('Invalid User or Password');
+            return JsonResponse::authError('Invalid User or Password',401);
         }
     }
 
@@ -235,6 +272,7 @@ class UserController
     {
 
         $password = $request->request->get('password');
+        $phone = $request->request->get('phoneNumber');
         $address = $request->request->get('address');
         $user = $this->app['session']->get('user');
         
@@ -244,6 +282,9 @@ class UserController
         }
         elseif (!$address) {
             return JsonResponse::missingParam('address');
+        }
+        elseif (!$phone) {
+            return JsonResponse::missingParam('phoneNumber');
         }
         elseif (!$address['street']) {
             return JsonResponse::missingParam('address(street)');
@@ -260,6 +301,30 @@ class UserController
         elseif (!$address['locationID']) {
             return JsonResponse::missingParam('address(locationID)');
         }
+        elseif (!is_string($phone)) {
+            return JsonResponse::userError('phoneNumber needs to be a string');
+        }
+        elseif (!is_string($password)) {
+            return JsonResponse::userError('password needs to be a string');
+        }
+        elseif (!is_string($address['street'])) {
+            return JsonResponse::userError('address[\'street\'] needs to be a string');
+        }
+        elseif (!is_string($address['unit'])) {
+            return JsonResponse::userError('address[\'unit\'] needs to be a string');
+        }
+        elseif (!is_string($address['city'])) {
+            return JsonResponse::userError('address[\'city\'] needs to be a string');
+        }
+        elseif (!is_string($address['postalCode'])) {
+            return JsonResponse::userError('address[\'postalCode\'] needs to be a string');
+        }
+        elseif (!is_int($address['locationID'])) {
+            return JsonResponse::userError('address[\'locationID\'] needs to be an integer');
+        }
+        elseif (!$this->app['api.address']->CheckLocation($address['locationID'])) {
+            return JsonResponse::userError('address[\'locationID\'] not found');
+        }
 
         $success = $this->app['api.auth']->CheckPassword($user['email'], $password);
 
@@ -268,6 +333,7 @@ class UserController
             //update address table with user submitted information
             $sql = 'UPDATE address SET locationid = :locationid, city = :city, street = :street, unit = :unit,  postalcode = :postalcode FROM account WHERE account.addressid = address.addressid AND account.userid = :userid';
 
+            //update address information
             $stmt = $this->app['db']->prepare($sql);
             $submited = $stmt->execute(array(
                 ':locationid' => $address['locationID'],
@@ -275,6 +341,15 @@ class UserController
                 ':street' => $address['street'],
                 ':unit' => $address['unit'],
                 ':postalcode' => $address['postalCode'],
+                ':userid' => $user['userId']
+            ));
+
+            //update account information only for phone
+            $sql = 'UPDATE account SET phonenumber = :phone WHERE account.userid = :userid';
+
+            $stmt = $this->app['db']->prepare($sql);
+            $submited = $stmt->execute(array(
+                ':phone' => $phone,
                 ':userid' => $user['userId']
             ));
 
@@ -293,7 +368,7 @@ class UserController
         } 
         else {
             // user not logged in
-            return JsonResponse::authError('Invalid User or Password');
+            return JsonResponse::authError('Invalid User or Password',401);
         }
     }
 
@@ -309,7 +384,7 @@ class UserController
              ':email' => $user['email']
         ));
 
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         //return results 
         if ($result) {
@@ -321,9 +396,22 @@ class UserController
 
         }
         else {
-            return JsonResponse::authError('Invalid User');
+            return JsonResponse::authError('Invalid User',401);
 
         }
 
+    }
+
+
+    public function Logout() {
+        $user = $this->app['session']->get('user');
+
+        if($this->app['api.auth']->Authenticated() == false) {
+            session_destroy();
+            return JsonResponse::authError('User not authenticated', 401);
+        }
+
+        session_destroy();
+        return new JsonResponse();
     }
 }
