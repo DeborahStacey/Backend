@@ -272,6 +272,7 @@ class UserController
     {
 
         $password = $request->request->get('password');
+        $phone = $request->request->get('phone');
         $address = $request->request->get('address');
         $user = $this->app['session']->get('user');
         
@@ -281,6 +282,9 @@ class UserController
         }
         elseif (!$address) {
             return JsonResponse::missingParam('address');
+        }
+        elseif (!$phone) {
+            return JsonResponse::missingParam('phone');
         }
         elseif (!$address['street']) {
             return JsonResponse::missingParam('address(street)');
@@ -296,6 +300,9 @@ class UserController
         }
         elseif (!$address['locationID']) {
             return JsonResponse::missingParam('address(locationID)');
+        }
+        elseif (!is_string($phone)) {
+            return JsonResponse::userError('phone needs to be a string');
         }
         elseif (!is_string($password)) {
             return JsonResponse::userError('password needs to be a string');
@@ -326,6 +333,7 @@ class UserController
             //update address table with user submitted information
             $sql = 'UPDATE address SET locationid = :locationid, city = :city, street = :street, unit = :unit,  postalcode = :postalcode FROM account WHERE account.addressid = address.addressid AND account.userid = :userid';
 
+            //update address information
             $stmt = $this->app['db']->prepare($sql);
             $submited = $stmt->execute(array(
                 ':locationid' => $address['locationID'],
@@ -333,6 +341,15 @@ class UserController
                 ':street' => $address['street'],
                 ':unit' => $address['unit'],
                 ':postalcode' => $address['postalCode'],
+                ':userid' => $user['userId']
+            ));
+
+            //update account information only for phone
+            $sql = 'UPDATE account SET phonenumber = :phone WHERE account.userid = :userid';
+
+            $stmt = $this->app['db']->prepare($sql);
+            $submited = $stmt->execute(array(
+                ':phone' => $phone,
                 ':userid' => $user['userId']
             ));
 
