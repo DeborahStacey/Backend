@@ -78,7 +78,7 @@ class PetController
         $sql = 'SELECT p.petid, p.name, ac.firstname, ac.lastname, ac.email, a.access FROM accessibility a INNER JOIN pet p ON p.petid = a.petid INNER JOIN account ac ON a.userid = ac.userid WHERE a.petid IN (SELECT petid FROM pet WHERE ownerid = :userID)';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array(
-            ':userID' => 15
+            ':userID' => $user['userId']
         ));
 
         $returnedResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
