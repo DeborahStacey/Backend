@@ -69,6 +69,61 @@ class PetController
         return new JsonResponse(null, 201);
     }
 
+
+    public function GetAccessibilities()
+    {
+        //gets user session
+        $user = $this->app['session']->get('user');
+
+        $sql = 'SELECT p.petid, p.name, ac.firstname, ac.lastname, ac.email, a.access FROM accessibility a INNER JOIN pet p ON p.petid = a.petid INNER JOIN account ac ON a.userid = ac.userid WHERE a.petid IN (SELECT petid FROM pet WHERE ownerid = :userID)';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+            ':userID' => 15
+        ));
+
+        $returnedResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $results = array();
+        $petid = -1;
+        $petNum = -1;
+        for ($i=0; $i < count($returnedResults) ; $i++) { 
+            if($returnedResults[$i]['petid'] != $petid) {
+                $petid = $returnedResults[$i]['petid'];
+                $petNum++;
+
+                $content = array (
+                    "petid" => $returnedResults[$i]['petid'],
+                    "name" => $returnedResults[$i]['name'],
+                    "shared" => array()
+                );
+                $shared = array(
+                    "firstname" => $returnedResults[$i]['firstname'],
+                    "lastname" => $returnedResults[$i]['lastname'],
+                    "email" => $returnedResults[$i]['email'],
+                    "access" => $returnedResults[$i]['access']
+                );
+                array_push($content['shared'],$shared);
+                array_push($results, $content);
+            }
+            else {
+                $shared = array(
+                    "firstname" => $returnedResults[$i]['firstname'],
+                    "lastname" => $returnedResults[$i]['lastname'],
+                    "email" => $returnedResults[$i]['email'],
+                    "access" => $returnedResults[$i]['access']
+                );
+                array_push($results[$petNum]['shared'],$shared);
+            }
+        }
+
+        $body = array(
+            "success" => true,
+            "pets" => $results
+        );
+        return new JsonResponse($body,200);
+    }
+    
+
     /**
      * Function adds sharing of one pet to another user in the system
      * @param Request $request holds JSON data of user and pet info in order to share a pet with someone else

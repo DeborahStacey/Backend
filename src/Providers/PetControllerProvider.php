@@ -62,6 +62,12 @@ class PetControllerProvider  implements ControllerProviderInterface, ServiceProv
         ;
 
         $controllers
+            ->get('/sharedPets', 'api.pet:GetAccessibilities')
+            ->before($userAuthenticate)
+        ;
+
+
+        $controllers
             ->get('/view/{petID}', 'api.pet:GetPet')
             ->before($userAuthenticate)
         ;
