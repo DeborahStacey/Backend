@@ -179,4 +179,101 @@ class PetRequestValidator
 
         return new RequestValidationResult($success, $parameters, $error);
     }
+
+    public function ValidateUpdatePetRequest(Request $request)
+    {
+        $parameters = Array();
+        
+        // Get parameters
+        $petID = $request->request->get('petID');
+        $name = $request->request->get('name');
+        $breed = $request->request->get('breed');
+        $gender = $request->request->get('gender');
+        $dateOfBirth = $request->request->get('dateOfBirth');
+        $weight = $request->request->get('weight');
+        $height = $request->request->get('height');
+        $length = $request->request->get('length');
+        
+        // Ensure we have a petID
+        if (!$petID) {
+            return new RequestValidationResult(false, null, JsonResponse::missingParam('petID'));
+        }
+        elseif (!is_int($petID)) {
+            return new RequestValidationResult(false, null, JsonResponse::userError('Invalid petID'));
+        }
+        else {
+            $parameters['petID'] = $petID;
+        }
+
+        // Validate parameters (we only need at least one valid parameter for this request)
+        if (isset($name)) {
+            if (is_string($name) && !empty($name)) {
+                $parameters['name'] = $name;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid name'));
+            }
+        }
+
+        if (isset($breed)) {
+            if (is_int($breed)) {
+                $parameters['breed'] = $breed;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid breed'));
+            }
+        }
+
+        if (isset($gender)) {
+            if (is_int($gender)) {
+                $parameters['gender'] = $gender;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid gender'));
+            }
+        }
+
+        if (isset($dateOfBirth)) {
+            if (DateTime::createFromFormat('Y-m-d', $dateOfBirth)) {
+                $parameters['dateOfBirth'] = $dateOfBirth;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid date of birth'));
+            }
+        }
+
+        if (isset($weight)) {
+            if (is_real($weight) || is_int($weight)) {
+                $parameters['weight'] = $weight;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid weight'));
+            }
+        }
+
+        if (isset($height)) {
+            if (is_real($height) || is_int($height)) {
+                $parameters['height'] = $height;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid height'));
+            }
+        }
+
+        if (isset($length)) {
+            if (is_real($length) || is_int($length)) {
+                $parameters['length'] = $length;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid length'));
+            }
+        }
+
+        if (count($parameters) > 0) {
+            return new RequestValidationResult(true, $parameters);
+        }
+        else {
+            return new RequestValidationResult(false, null, JsonResponse::userError('At least one parameter must be set'));   
+        }        
+    }
 }
