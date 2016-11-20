@@ -6,6 +6,7 @@ use DateTime;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use WellCat\JsonResponse;
+use WellCat\Converters\StringToBooleanConverter;
 
 class PetRequestValidator
 {
@@ -269,11 +270,63 @@ class PetRequestValidator
             }
         }
 
-        if (count($parameters) > 0) {
+        // Check to see if cat specific parameters need to be validated
+        if ($this->app['api.petservice']->GetAnimalTypeIDFromPet($petID) == 1) {
+            $catValidationResult = $this->ValidateUpdatePetCatRequest($request);
+
+            if (!$catValidationResult->GetSuccess()) {
+                return $catValidationResult;
+            }
+            else {
+                $parameters = array_merge($parameters, $catValidationResult->GetParameters());
+            }
+        }
+
+        if (count($parameters) > 1) {
             return new RequestValidationResult(true, $parameters);
         }
         else {
             return new RequestValidationResult(false, null, JsonResponse::userError('At least one parameter must be set'));   
         }        
+    }
+
+    private function ValidateUpdatePetCatRequest(Request $request)
+    {
+        $parameters = Array();
+
+        // Get parameters
+        $declawed = $request->request->get('declawed');
+        $outdoor = $request->request->get('outdoor');
+        $fixed = $request->request->get('fixed');
+
+        // Validate parameters
+        if (isset($declawed)) {
+            if (is_bool($declawed) || (is_string($declawed) && !is_null(StringToBooleanConverter::Convert($declawed)))) {
+                $parameters['declawed'] = $declawed;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid declawed value'));
+            }
+        }
+
+        if (isset($outdoor)) {
+            if (is_bool($outdoor) || (is_string($outdoor) && !is_null(StringToBooleanConverter::Convert($outdoor)))) {
+                $parameters['outdoor'] = $outdoor;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid outdoor value'));
+            }
+        }
+
+        if (isset($fixed)) {
+            if (is_bool($fixed) || (is_string($fixed) && !is_null(StringToBooleanConverter::Convert($fixed)))) {
+                $parameters['fixed'] = $fixed;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid fixed value'));
+            }
+        }
+
+        return new RequestValidationResult(true, $parameters);
     }
 }

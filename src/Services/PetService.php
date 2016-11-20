@@ -63,4 +63,29 @@ class PetService
             }
         }
     }
+
+    public function GetAnimalTypeIDFromPet($petID)
+    {
+        if (!isset($petID) || !is_int($petID)) {
+            throw new Exception('Invalid petID');
+        }
+
+        $sql = 'SELECT B.animaltypeid 
+                FROM pet P
+                    INNER JOIN breed B on B.breedid = P.breed
+                WHERE P.petid = :petID';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+            'petID' => $petID
+        ));
+
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result) {
+            return (int)$result['animaltypeid'];
+        }
+        else {
+            throw new Exception('Invalid petID');
+        }
+    }
 }

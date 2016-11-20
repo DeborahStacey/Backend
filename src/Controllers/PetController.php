@@ -256,20 +256,59 @@ class PetController
                 $sqlParameters['length'] = $validationResult->GetParameter('length');
             }
 
-            $sql = rtrim($sql, ", ") . ' WHERE petID = :petID';
-            $sqlParameters['petID'] = $validationResult->GetParameter('petID');
+            if (count($sqlParameters) > 0) {
+                $sql = rtrim($sql, ", ") . ' WHERE petID = :petID';
+                $sqlParameters['petID'] = $validationResult->GetParameter('petID');
 
-            // Execute update
-            $stmt = $this->app['db']->prepare($sql);
-            $success = $stmt->execute($sqlParameters);
+                // Execute update
+                $stmt = $this->app['db']->prepare($sql);
+                $success = $stmt->execute($sqlParameters);            
+
+                if (!$success) {
+                    $this->app['db']->rollBack();
+                    return JsonReponse::userError('Unable to update pet.');
+                }
+            }
+
+            // Update cat specific parameters if necessary
+            if ($this->app['api.petservice']->GetAnimalTypeIDFromPet($validationResult->GetParameter('petID')) == 1) {
+                $sql = 'UPDATE pet_cat SET ';
+
+                $sqlParameters = Array();
+
+                if ($validationResult->HasParameter('declawed')) {
+                    $sql = $sql . 'declawed = :declawed, ';
+                    $sqlParameters['declawed'] = $validationResult->GetParameter('declawed');
+                }
+
+                if ($validationResult->HasParameter('outdoor')) {
+                    $sql = $sql . 'outdoor = :outdoor, ';
+                    $sqlParameters['outdoor'] = $validationResult->GetParameter('outdoor');
+                }
+
+                if ($validationResult->HasParameter('fixed')) {
+                    $sql = $sql . 'fixed = :fixed, ';
+                    $sqlParameters['fixed'] = $validationResult->GetParameter('fixed');
+                }
+
+                if (count($sqlParameters) > 0) {
+                    $sql = rtrim($sql, ", ") . ' WHERE petID = :petID';
+                    $sqlParameters['petID'] = $validationResult->GetParameter('petID');
+
+                    // Execute update
+                    $stmt = $this->app['db']->prepare($sql);
+                    $success = $stmt->execute($sqlParameters);            
+
+                    if (!$success) {
+                        $this->app['db']->rollBack();
+                        return JsonReponse::userError('Unable to update pet.');
+                    }
+                }
+            }
+
             $this->app['db']->commit();
 
-            if ($success) {
-                return new JsonResponse(null, 201);
-            }
-            else {
-                return JsonReponse::userError('Unable to update pet.');
-            }            
+            return new JsonResponse(null, 201);
         } catch (Exception $e) {
             $this->app['db']->rollBack();
             return JsonResponse::serverError();
