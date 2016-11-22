@@ -248,6 +248,128 @@ class PetController
     }
 
     /**
+    * Function updates any number of details for a specified AddPetCatDetails
+    * @param Request $request holds JSON data of pet info to be updated
+    *       =>[int] petID holds the petID of a pet in the system
+    */
+    public function UpdatePet(Request $request)
+    {
+        $validationResult = $this->app['api.petrequestvalidator']->ValidateUpdatePetRequest($request);
+
+        if (!$validationResult->GetSuccess()) {
+            return $validationResult->GetError();
+        }
+
+        // Check to see if user already has accessibility with pet
+        $ownershipLevel = $this->app['api.petservice']->CheckPetOwnership($validationResult->GetParameter('petID'), false);
+        if ($ownershipLevel < 2) {
+            $body = array(
+                'success' => false,
+                'error' => 'Pet not found'
+            );
+
+            return new JsonResponse($body, 404);
+        }
+
+        // Begin db transaction
+        try {
+            $this->app['db']->beginTransaction();
+
+            // Build sql statement
+            $sql = 'UPDATE pet SET ';
+
+            $sqlParameters = Array();
+
+            if ($validationResult->HasParameter('name')) {
+                $sql = $sql . 'name = :name, ';
+                $sqlParameters['name'] = $validationResult->GetParameter('name');
+            }
+
+            if ($validationResult->HasParameter('gender')) {
+                $sql = $sql . 'gender = :gender, ';
+                $sqlParameters['gender'] = $validationResult->GetParameter('gender');
+            }
+
+            if ($validationResult->HasParameter('dateOfBirth')) {
+                $sql = $sql . 'dateOfBirth = :dateOfBirth, ';
+                $sqlParameters['dateOfBirth'] = $validationResult->GetParameter('dateOfBirth');
+            }
+
+            if ($validationResult->HasParameter('weight')) {
+                $sql = $sql . 'weight = :weight, ';
+                $sqlParameters['weight'] = $validationResult->GetParameter('weight');
+            }
+
+            if ($validationResult->HasParameter('height')) {
+                $sql = $sql . 'height = :height, ';
+                $sqlParameters['height'] = $validationResult->GetParameter('height');
+            }
+
+            if ($validationResult->HasParameter('length')) {
+                $sql = $sql . 'length = :length, ';
+                $sqlParameters['length'] = $validationResult->GetParameter('length');
+            }
+
+            if (count($sqlParameters) > 0) {
+                $sql = rtrim($sql, ", ") . ' WHERE petID = :petID';
+                $sqlParameters['petID'] = $validationResult->GetParameter('petID');
+
+                // Execute update
+                $stmt = $this->app['db']->prepare($sql);
+                $success = $stmt->execute($sqlParameters);            
+
+                if (!$success) {
+                    $this->app['db']->rollBack();
+                    return JsonReponse::userError('Unable to update pet.');
+                }
+            }
+
+            // Update cat specific parameters if necessary
+            if ($this->app['api.petservice']->GetAnimalTypeIDFromPet($validationResult->GetParameter('petID')) == 1) {
+                $sql = 'UPDATE pet_cat SET ';
+
+                $sqlParameters = Array();
+
+                if ($validationResult->HasParameter('declawed')) {
+                    $sql = $sql . 'declawed = :declawed, ';
+                    $sqlParameters['declawed'] = $validationResult->GetParameter('declawed');
+                }
+
+                if ($validationResult->HasParameter('outdoor')) {
+                    $sql = $sql . 'outdoor = :outdoor, ';
+                    $sqlParameters['outdoor'] = $validationResult->GetParameter('outdoor');
+                }
+
+                if ($validationResult->HasParameter('fixed')) {
+                    $sql = $sql . 'fixed = :fixed, ';
+                    $sqlParameters['fixed'] = $validationResult->GetParameter('fixed');
+                }
+
+                if (count($sqlParameters) > 0) {
+                    $sql = rtrim($sql, ", ") . ' WHERE petID = :petID';
+                    $sqlParameters['petID'] = $validationResult->GetParameter('petID');
+
+                    // Execute update
+                    $stmt = $this->app['db']->prepare($sql);
+                    $success = $stmt->execute($sqlParameters);            
+
+                    if (!$success) {
+                        $this->app['db']->rollBack();
+                        return JsonReponse::userError('Unable to update pet.');
+                    }
+                }
+            }
+
+            $this->app['db']->commit();
+
+            return new JsonResponse(null, 201);
+        } catch (Exception $e) {
+            $this->app['db']->rollBack();
+            return JsonResponse::serverError();
+        }
+    }
+
+    /**
      * Function adds a pet to the system
      * @param [string] $name holds the name of the pet
      * @param [int] $breed holds the breedID of the pet

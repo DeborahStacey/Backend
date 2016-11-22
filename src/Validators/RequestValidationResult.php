@@ -29,4 +29,8 @@ class RequestValidationResult
     public function GetSuccess() {
         return $this->success;
     }
+
+    public function HasParameter($paramName) {
+        return array_key_exists($paramName, $this->validParameters);
+    }
 }
