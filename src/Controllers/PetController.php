@@ -282,7 +282,7 @@ class PetController
             $sqlParameters = Array();
 
             if ($validationResult->HasParameter('owner')) {
-                $sql = $sql . 'ownerid = :ownerID';
+                $sql = $sql . 'ownerid = :ownerID, ';
                 $sqlParameters['ownerID'] = $this->app['api.auth']->GetUserIDByEmail($validationResult->GetParameter('owner'));
             }
 
@@ -314,6 +314,16 @@ class PetController
             if ($validationResult->HasParameter('length')) {
                 $sql = $sql . 'length = :length, ';
                 $sqlParameters['length'] = $validationResult->GetParameter('length');
+            }
+
+            if ($validationResult->HasParameter('dateOfDeath')) {
+                $sql = $sql . 'dateofdeath = :dateOfDeath, ';
+                $sqlParameters['dateOfDeath'] = $validationResult->GetParameter('dateOfDeath');
+            }
+
+            if ($validationResult->HasParameter('reasonForDeath')) {
+                $sql = $sql . 'reasonForDeath = :reasonForDeath, ';
+                $sqlParameters['reasonForDeath'] = $validationResult->GetParameter('reasonForDeath');
             }
 
             if (count($sqlParameters) > 0) {

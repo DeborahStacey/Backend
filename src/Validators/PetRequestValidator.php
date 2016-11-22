@@ -219,6 +219,8 @@ class PetRequestValidator
         $weight = $request->request->get('weight');
         $height = $request->request->get('height');
         $length = $request->request->get('length');
+        $dateOfDeath = $request->request->get('dateOfDeath');
+        $reasonForDeath = $request->request->get('reasonForDeath');
 
         // Ensure we have a petID
         if (!$petID) {
@@ -311,6 +313,24 @@ class PetRequestValidator
             }
             else {
                 return new RequestValidationResult(false, null, JsonResponse::userError('Invalid length'));
+            }
+        }
+
+        if (isset($dateOfDeath)) {
+            if (DateTime::createFromFormat('Y-m-d', $dateOfDeath)) {
+                $parameters['dateOfDeath'] = $dateOfDeath;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid date of death'));
+            }
+        }
+
+        if (isset($reasonForDeath)) {
+            if (is_string($reasonForDeath) && !empty($reasonForDeath)) {
+                $parameters['reasonForDeath'] = $reasonForDeath;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid reason for death'));
             }
         }
 
