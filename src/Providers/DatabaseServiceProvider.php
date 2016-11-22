@@ -16,9 +16,11 @@ class DatabaseServiceProvider implements ServiceProviderInterface
                 $dbconfig['user'],
                 $dbconfig['pass'],
                 array(
-                    \PDO::ATTR_PERSISTENT => true
+                    \PDO::ATTR_PERSISTENT => true,
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
                 )
             );
+
             return $db;
         });
     }

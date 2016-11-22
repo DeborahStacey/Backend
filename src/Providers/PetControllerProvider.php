@@ -77,6 +77,11 @@ class PetControllerProvider  implements ControllerProviderInterface, ServiceProv
             ->before($userAuthenticate)
         ;
 
+        $controllers
+            ->put('/update', 'api.pet:UpdatePet')
+            ->before($userAuthenticate)
+        ;
+
         return $controllers;
     }
 }
