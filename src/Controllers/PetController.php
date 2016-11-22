@@ -217,13 +217,12 @@ class PetController
         }
 
         // Begin db transaction
-        try {  
-            $this->app['db']->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        try {
             $this->app['db']->beginTransaction();
-            
+
             // Build sql statement
             $sql = 'UPDATE pet SET ';
-            
+
             $sqlParameters = Array();
 
             if ($validationResult->HasParameter('name')) {
