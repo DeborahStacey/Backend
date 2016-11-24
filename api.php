@@ -9,6 +9,7 @@ header('Access-Control-Allow-Origin: *');
 require_once __DIR__.'/vendor/autoload.php';
 
 use WellCat\Providers\ApiControllerProvider;
+use WellCat\Providers\AdminUserControllerProvider;
 use WellCat\Providers\UserControllerProvider;
 use WellCat\Providers\PetControllerProvider;
 use WellCat\Providers\AddressControllerProvider;
@@ -25,6 +26,10 @@ require_once __DIR__.'/src/wellCat.php';
 $apiConProv = new ApiControllerProvider();
 $app->register($apiConProv);
 $app->mount('/', $apiConProv);
+
+$adminUserConProv = new AdminUserControllerProvider();
+$app->register($adminUserConProv);
+$app->mount('/user', $adminUserConProv);
 
 $userConProv = new UserControllerProvider();
 $app->register($userConProv);
