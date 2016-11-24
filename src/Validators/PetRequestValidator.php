@@ -223,7 +223,7 @@ class PetRequestValidator
         if (!$petID) {
             return new RequestValidationResult(false, null, JsonResponse::missingParam('petID'));
         }
-        elseif (!is_int($petID)) {
+        elseif (!is_numeric($petID)) {
             return new RequestValidationResult(false, null, JsonResponse::userError('Invalid petID'));
         }
         else {
@@ -241,7 +241,7 @@ class PetRequestValidator
         }
 
         if (isset($breed)) {
-            if (is_int($breed)) {
+            if (is_numeric($breed)) {
                 $parameters['breed'] = $breed;
             }
             else {
@@ -250,7 +250,7 @@ class PetRequestValidator
         }
 
         if (isset($gender)) {
-            if (is_int($gender)) {
+            if (is_numeric($gender)) {
                 $parameters['gender'] = $gender;
             }
             else {
@@ -268,7 +268,7 @@ class PetRequestValidator
         }
 
         if (isset($weight)) {
-            if (is_real($weight) || is_int($weight)) {
+            if (is_real($weight) || is_numeric($weight)) {
                 $parameters['weight'] = $weight;
             }
             else {
@@ -277,7 +277,7 @@ class PetRequestValidator
         }
 
         if (isset($height)) {
-            if (is_real($height) || is_int($height)) {
+            if (is_real($height) || is_numeric($height)) {
                 $parameters['height'] = $height;
             }
             else {
@@ -286,7 +286,7 @@ class PetRequestValidator
         }
 
         if (isset($length)) {
-            if (is_real($length) || is_int($length)) {
+            if (is_real($length) || is_numeric($length)) {
                 $parameters['length'] = $length;
             }
             else {

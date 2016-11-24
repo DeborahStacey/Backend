@@ -107,7 +107,7 @@ class UserController
         elseif (!is_string($address['postalCode'])) {
             return JsonResponse::userError('address[\'postalCode\'] needs to be a string');
         }
-        elseif (!is_int($address['locationID'])) {
+        elseif (!is_numeric($address['locationID'])) {
             return JsonResponse::userError('address[\'locationID\'] needs to be an integer');
         }
         elseif (!$this->app['api.address']->CheckLocation($address['locationID'])) {
@@ -319,7 +319,7 @@ class UserController
         elseif (!is_string($address['postalCode'])) {
             return JsonResponse::userError('address[\'postalCode\'] needs to be a string');
         }
-        elseif (!is_int($address['locationID'])) {
+        elseif (!is_numeric($address['locationID'])) {
             return JsonResponse::userError('address[\'locationID\'] needs to be an integer');
         }
         elseif (!$this->app['api.address']->CheckLocation($address['locationID'])) {

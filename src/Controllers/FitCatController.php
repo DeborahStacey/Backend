@@ -33,7 +33,7 @@ class FitCatController
         elseif (!$date) {
             return JsonResponse::missingParam('date');
         }
-        elseif (!is_int($petID)) {
+        elseif (!is_numeric($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
         elseif (!is_numeric($weight)) {
@@ -105,10 +105,10 @@ class FitCatController
         elseif (!$date) {
             return JsonResponse::missingParam('date');
         }
-        elseif (!is_int($petID)) {
+        elseif (!is_numeric($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif (!is_int($steps)) {
+        elseif (!is_numeric($steps)) {
             return JsonResponse::userError('Invalid steps');
         }
         elseif (!DateTime::createFromFormat('Y-m-d', $date)) {
@@ -170,7 +170,7 @@ class FitCatController
         elseif (!$date) {
             return JsonResponse::missingParam('date');
         }
-        elseif (!is_int($petID)) {
+        elseif (!is_numeric($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
         elseif (!is_numeric($amount)) {
@@ -243,7 +243,7 @@ class FitCatController
         elseif (!$date) {
             return JsonResponse::missingParam('date');
         }
-        elseif (!is_int($petID)) {
+        elseif (!is_numeric($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
         elseif (!is_numeric($amount)) {
@@ -405,7 +405,7 @@ class FitCatController
         if (!$petID) {
             return JsonResponse::missingParam('petID');
         }
-        elseif (!is_int($petID)) {
+        elseif (!is_numeric($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
         elseif ($this->app['api.petservice']->CheckPetOwnership($petID,FALSE) != 3) {
@@ -441,7 +441,7 @@ class FitCatController
         if (!$petID) {
             return JsonResponse::missingParam('petID');
         }
-        elseif (!is_int($petID)) {
+        elseif (!is_numeric($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
         elseif ($this->app['api.petservice']->CheckPetOwnership($petID,TRUE) != 3) {
