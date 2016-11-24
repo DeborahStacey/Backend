@@ -66,7 +66,7 @@ class PetService
 
     public function GetAnimalTypeIDFromPet($petID)
     {
-        if (!isset($petID) || !is_int($petID)) {
+        if (!isset($petID) || !is_numeric($petID)) {
             throw new Exception('Invalid petID');
         }
 

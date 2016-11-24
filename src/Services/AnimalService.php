@@ -15,7 +15,7 @@ class AnimalService
 
     public function CheckBreedExists($breedID)
     {
-        if (!$breedID || !is_int($breedID)) {
+        if (!$breedID || !is_numeric($breedID)) {
             return false;
         }
 
@@ -37,7 +37,7 @@ class AnimalService
 
     public function CheckAnimalExists($animalID)
     {
-        if (!$animalID || !is_int($animalID)) {
+        if (!$animalID || !is_numeric($animalID)) {
             return false;
         }
 
@@ -59,7 +59,7 @@ class AnimalService
 
     public function CheckGenderExists($genderID)
     {
-        if (!$genderID || !is_int($genderID)) {
+        if (!$genderID || !is_numeric($genderID)) {
             return false;
         }
 
