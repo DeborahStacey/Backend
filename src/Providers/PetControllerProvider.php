@@ -82,6 +82,11 @@ class PetControllerProvider  implements ControllerProviderInterface, ServiceProv
             ->before($userAuthenticate)
         ;
 
+        $controllers
+            ->delete('/remove', 'api.pet:RemovePet')
+            ->before($userAuthenticate)
+        ;
+
         return $controllers;
     }
 }

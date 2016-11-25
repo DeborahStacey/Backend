@@ -551,6 +551,42 @@ class PetController
         }
     }
 
+    public function RemovePet(Request $request)
+    {
+        $petID = $request->request->get('petID');
+
+        if (!$petID) {
+            return JsonResponse::missingParam('petID');
+        }
+        elseif (!is_numeric($petID)) {
+            return JsonResponse::userError('petID needs to be an int');
+        }
+
+        $ownership = $this->app['api.petservice']->CheckPetOwnership($petID,false);
+        if($ownership != 3) {
+            $body = array(
+                'success' => false,
+                'error' => 'Pet not found'
+            );
+            return new JsonResponse($body,401);
+        }
+
+        $sql = 'UPDATE pet SET visible = false WHERE petid = :petID';
+        $stmt = $this->app['db']->prepare($sql);
+        $success = $stmt->execute(array(
+            'petID' => $petID
+        ));
+
+        if($success) {
+            return new JsonResponse();
+        }
+        else {
+            return JsonResponse::serverError();
+        }
+
+
+    }
+
     /**
      * Function trys to select a current shared access if it exits it returns the access. Otherwise returns null
      * @param [int] $userID holds a userID of a user in the system
