@@ -27,6 +27,7 @@ $app->register(new \WellCat\Providers\AddressServiceProvider());
 $app->register(new \WellCat\Providers\AuthenticationServiceProvider());
 $app->register(new \WellCat\Providers\AnimalServiceProvider());
 $app->register(new \WellCat\Providers\DatabaseTypesServiceProvider());
+$app->register(new \WellCat\Providers\PetServiceProvider());
 
 // Validators
 $app->register(new \WellCat\Providers\PetRequestValidatorProvider());

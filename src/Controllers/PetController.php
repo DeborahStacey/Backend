@@ -53,9 +53,9 @@ class PetController
         }
 
         // Add animal specific parameters if necessary
-        if ($validationResult->GetParameter('animalTypeID') == 1) {
+        if ($validationResult->GetParameter('animalID') == 1) {
             $success = $this->AddPetCatDetails(
-                $petID, 
+                $petID,
                 $validationResult->GetParameter('declawed'),
                 $validationResult->GetParameter('outdoor'),
                 $validationResult->GetParameter('fixed')
@@ -68,6 +68,61 @@ class PetController
 
         return new JsonResponse(null, 201);
     }
+
+
+    public function GetAccessibilities()
+    {
+        //gets user session
+        $user = $this->app['session']->get('user');
+
+        $sql = 'SELECT p.petid, p.name, ac.firstname, ac.lastname, ac.email, a.access FROM accessibility a INNER JOIN pet p ON p.petid = a.petid INNER JOIN account ac ON a.userid = ac.userid WHERE a.petid IN (SELECT petid FROM pet WHERE ownerid = :userID)';
+        $stmt = $this->app['db']->prepare($sql);
+        $stmt->execute(array(
+            ':userID' => $user['userId']
+        ));
+
+        $returnedResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $results = array();
+        $petid = -1;
+        $petNum = -1;
+        for ($i=0; $i < count($returnedResults) ; $i++) {
+            if($returnedResults[$i]['petid'] != $petid) {
+                $petid = $returnedResults[$i]['petid'];
+                $petNum++;
+
+                $content = array (
+                    "petid" => $returnedResults[$i]['petid'],
+                    "name" => $returnedResults[$i]['name'],
+                    "shared" => array()
+                );
+                $shared = array(
+                    "firstname" => $returnedResults[$i]['firstname'],
+                    "lastname" => $returnedResults[$i]['lastname'],
+                    "email" => $returnedResults[$i]['email'],
+                    "access" => $returnedResults[$i]['access']
+                );
+                array_push($content['shared'],$shared);
+                array_push($results, $content);
+            }
+            else {
+                $shared = array(
+                    "firstname" => $returnedResults[$i]['firstname'],
+                    "lastname" => $returnedResults[$i]['lastname'],
+                    "email" => $returnedResults[$i]['email'],
+                    "access" => $returnedResults[$i]['access']
+                );
+                array_push($results[$petNum]['shared'],$shared);
+            }
+        }
+
+        $body = array(
+            "success" => true,
+            "pets" => $results
+        );
+        return new JsonResponse($body,200);
+    }
+
 
     /**
      * Function adds sharing of one pet to another user in the system
@@ -163,7 +218,7 @@ class PetController
         elseif (!$userID) {
             return JsonResponse::userError('Email provided is not associated with an existing WellCat account');
         }
-        elseif (!is_integer($petID)) {
+        elseif (!is_int($petID)) {
             return JsonResponse::userError('Invlid petID');
         }
         elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -193,16 +248,154 @@ class PetController
     }
 
     /**
+    * Function updates any number of details for a specified AddPetCatDetails
+    * @param Request $request holds JSON data of pet info to be updated
+    *       =>[int] petID holds the petID of a pet in the system
+    */
+    public function UpdatePet(Request $request)
+    {
+        $validationResult = $this->app['api.petrequestvalidator']->ValidateUpdatePetRequest($request);
+
+        if (!$validationResult->GetSuccess()) {
+            return $validationResult->GetError();
+        }
+
+        // Check to see if user already has accessibility with pet (only the current owner can choose to change to a new owner)
+        $accessLevel = $this->app['api.petservice']->CheckPetOwnership($validationResult->GetParameter('petID'), false);
+        if (($validationResult->HasParameter('owner') && $accessLevel != 3)
+            || $accessLevel < 2) {
+            $body = array(
+                'success' => false,
+                'error' => 'Pet not found'
+            );
+
+            return new JsonResponse($body, 404);
+        }
+
+        // Begin db transaction
+        try {
+            $this->app['db']->beginTransaction();
+
+            // Build sql statement
+            $sql = 'UPDATE pet SET ';
+
+            $sqlParameters = Array();
+
+            if ($validationResult->HasParameter('owner')) {
+                $sql = $sql . 'ownerid = :ownerID, ';
+                $sqlParameters['ownerID'] = $this->app['api.auth']->GetUserIDByEmail($validationResult->GetParameter('owner'));
+            }
+
+            if ($validationResult->HasParameter('name')) {
+                $sql = $sql . 'name = :name, ';
+                $sqlParameters['name'] = $validationResult->GetParameter('name');
+            }
+
+            if ($validationResult->HasParameter('gender')) {
+                $sql = $sql . 'gender = :gender, ';
+                $sqlParameters['gender'] = $validationResult->GetParameter('gender');
+            }
+
+            if ($validationResult->HasParameter('dateOfBirth')) {
+                $sql = $sql . 'dateOfBirth = :dateOfBirth, ';
+                $sqlParameters['dateOfBirth'] = $validationResult->GetParameter('dateOfBirth');
+            }
+
+            if ($validationResult->HasParameter('weight')) {
+                $sql = $sql . 'weight = :weight, ';
+                $sqlParameters['weight'] = $validationResult->GetParameter('weight');
+            }
+
+            if ($validationResult->HasParameter('height')) {
+                $sql = $sql . 'height = :height, ';
+                $sqlParameters['height'] = $validationResult->GetParameter('height');
+            }
+
+            if ($validationResult->HasParameter('length')) {
+                $sql = $sql . 'length = :length, ';
+                $sqlParameters['length'] = $validationResult->GetParameter('length');
+            }
+
+            if ($validationResult->HasParameter('dateOfDeath')) {
+                $sql = $sql . 'dateofdeath = :dateOfDeath, ';
+                $sqlParameters['dateOfDeath'] = $validationResult->GetParameter('dateOfDeath');
+            }
+
+            if ($validationResult->HasParameter('reasonForDeath')) {
+                $sql = $sql . 'reasonForDeath = :reasonForDeath, ';
+                $sqlParameters['reasonForDeath'] = $validationResult->GetParameter('reasonForDeath');
+            }
+
+            if (count($sqlParameters) > 0) {
+                $sql = rtrim($sql, ", ") . ' WHERE petID = :petID';
+                $sqlParameters['petID'] = $validationResult->GetParameter('petID');
+
+                // Execute update
+                $stmt = $this->app['db']->prepare($sql);
+                $success = $stmt->execute($sqlParameters);
+
+                if (!$success) {
+                    $this->app['db']->rollBack();
+                    return JsonReponse::userError('Unable to update pet.');
+                }
+            }
+
+            // Update cat specific parameters if necessary
+            if ($this->app['api.petservice']->GetAnimalTypeIDFromPet($validationResult->GetParameter('petID')) == 1) {
+                $sql = 'UPDATE pet_cat SET ';
+
+                $sqlParameters = Array();
+
+                if ($validationResult->HasParameter('declawed')) {
+                    $sql = $sql . 'declawed = :declawed, ';
+                    $sqlParameters['declawed'] = $validationResult->GetParameter('declawed');
+                }
+
+                if ($validationResult->HasParameter('outdoor')) {
+                    $sql = $sql . 'outdoor = :outdoor, ';
+                    $sqlParameters['outdoor'] = $validationResult->GetParameter('outdoor');
+                }
+
+                if ($validationResult->HasParameter('fixed')) {
+                    $sql = $sql . 'fixed = :fixed, ';
+                    $sqlParameters['fixed'] = $validationResult->GetParameter('fixed');
+                }
+
+                if (count($sqlParameters) > 0) {
+                    $sql = rtrim($sql, ", ") . ' WHERE petID = :petID';
+                    $sqlParameters['petID'] = $validationResult->GetParameter('petID');
+
+                    // Execute update
+                    $stmt = $this->app['db']->prepare($sql);
+                    $success = $stmt->execute($sqlParameters);
+
+                    if (!$success) {
+                        $this->app['db']->rollBack();
+                        return JsonReponse::userError('Unable to update pet.');
+                    }
+                }
+            }
+
+            $this->app['db']->commit();
+
+            return new JsonResponse(null, 201);
+        } catch (Exception $e) {
+            $this->app['db']->rollBack();
+            return JsonResponse::serverError();
+        }
+    }
+
+    /**
      * Function adds a pet to the system
      * @param [string] $name holds the name of the pet
      * @param [int] $breed holds the breedID of the pet
      * @param [int] $gender holds the genderID of the pet
      * @param [string] $dateOfBirth holds a date string formatted as Y-m-d
      * @param [float] $weight holds the weight of the pet in kilograms (?)
-     * @param [float] $height holds the height of the pet in cm (?) 
+     * @param [float] $height holds the height of the pet in cm (?)
      * @param [float] $length holds the length of the pet in cm (?)
      * @return [int] returns the id of the newly created pet; null if error occurred
-    */    
+    */
     private function CreateGenericPet($name, $breed, $gender, $dateOfBirth, $weight, $height, $length)
     {
         // Add pet to database
@@ -239,7 +432,7 @@ class PetController
      * @param [bool] $outdoor determines whether the cat is an outdoor cat or not
      * @param [bool] $fixed determines whether the cat is fixed or not
      * @return [bool] returns true if successful, false otherwise
-    */    
+    */
     private function AddPetCatDetails($petID, $declawed, $outdoor, $fixed)
     {
         // Add cat to database
@@ -258,7 +451,7 @@ class PetController
     }
 
     /**
-     * Function gets pet information based on a given petID but if the user doesn't have 
+     * Function gets pet information based on a given petID but if the user doesn't have
      * access they do not get any information about the pet
      * @param [int] $petID holds the petID of a pet to be accessed
     */
@@ -277,7 +470,7 @@ class PetController
 
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        //if user doesn't own the pet checks to see if they have access to the 
+        //if user doesn't own the pet checks to see if they have access to the
         //pet and if not a error message is returned to the caller
         if (!$result) {
             $sql = 'SELECT B.animaltypeid FROM accessibility A INNER JOIN pet P ON P.petid = A.petid INNER JOIN breed B ON B.breedid = P.breed WHERE A.userid = :user AND A.petid = :petID';

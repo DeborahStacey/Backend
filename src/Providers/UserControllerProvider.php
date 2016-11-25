@@ -76,7 +76,7 @@ class UserControllerProvider implements ControllerProviderInterface, ServiceProv
         ;
 
         $controllers
-            ->get('/logout', 'api.user:Logout')
+            ->post('/logout', 'api.user:Logout')
         ;
 
         return $controllers;

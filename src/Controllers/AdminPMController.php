@@ -42,7 +42,7 @@ class AdminPMController
         $weight = $request->request->get('weight');
         $height = $request->request->get('height');
         $length = $request->request->get('length');
-        $animal = $request->request->get('animalID');
+        $animal = $request->request->get('animalTypeID');
         $breed = $request->request->get('breed');
         $gender = $request->request->get('gender');
 
@@ -54,7 +54,7 @@ class AdminPMController
             return JsonResponse::missingParam('breed');
         }
         elseif (!$animal) {
-            return JsonResponse::missingParam('animal');
+            return JsonResponse::missingParam('animalTypeID');
         }
         elseif (!$gender) {
             return JsonResponse::missingParam('gender');
@@ -72,28 +72,28 @@ class AdminPMController
             return JsonResponse::missingParam('length');
         }
         elseif(!$this->app['api.animalservice']->CheckAnimalExists($animal)) {
-            return JsonResponse::userError('Invalid animal');
+            return JsonResponse::userError('animal needs to be a int and valid');
         }
         elseif(!is_string($petName)) {
-            return JsonResponse::userError('Invalid name');
+            return JsonResponse::userError('name needs to be a string');
         }
         elseif(!$this->app['api.animalservice']->CheckGenderExists($gender)) {
-            return JsonResponse::userError('Invalid gender');
+            return JsonResponse::userError('gender  needs to be a int and valid');
         }
         elseif (!DateTime::createFromFormat('Y-m-d', $dateOfBirth)) {
             return JsonResponse::userError('Invalid date.');
         }
         elseif (!$this->app['api.animalservice']->CheckBreedExists($breed)) {
-            return JsonResponse::userError('Invalid breed.');
+            return JsonResponse::userError('breed needs to be a int and valid');
         }
         elseif(!is_numeric($weight)) {
-            return JsonResponse::userError('Invalid weight');
+            return JsonResponse::userError('weight needs to be a number');
         }
         elseif(!is_numeric($height)) {
-            return JsonResponse::userError('Invalid height');
+            return JsonResponse::userError('height needs to be a number');
         }
         elseif(!is_numeric($length)) {
-            return JsonResponse::userError('Invalid length');
+            return JsonResponse::userError('length needs to be a number');
         }
         
         // Add pet to database
@@ -137,7 +137,7 @@ class AdminPMController
             }
         }
         elseif($success) {
-            return new JsonResponse(null,201)
+            return new JsonResponse(null,201);
         }
         else {          
             return JsonResponse::userError('Unable to register pet.');

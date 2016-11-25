@@ -43,7 +43,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID,TRUE) < 2) {
+        elseif ($this->app['api.petservice']->CheckPetOwnership($petID,TRUE) < 2) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not found'
@@ -115,7 +115,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID,TRUE) < 2) {
+        elseif ($this->app['api.petservice']->CheckPetOwnership($petID,TRUE) < 2) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not found'
@@ -180,7 +180,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID,TRUE) < 2) {
+        elseif ($this->app['api.petservice']->CheckPetOwnership($petID,TRUE) < 2) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not found'
@@ -253,7 +253,7 @@ class FitCatController
             return JsonResponse::userError('Invalid date');
         }
         //first checks to see if petID is accessable by the user (write-access).
-        elseif ($this->CheckPetOwnership($petID,TRUE) < 2) {
+        elseif ($this->app['api.petservice']->CheckPetOwnership($petID,TRUE) < 2) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not found'
@@ -335,7 +335,7 @@ class FitCatController
     public function View($petID)
     {
         //first checks to see if petID is accessable by the user.
-        if (!$this->CheckPetOwnership($petID,TRUE)) {
+        if (!$this->app['api.petservice']->CheckPetOwnership($petID,TRUE)) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not found'
@@ -363,11 +363,11 @@ class FitCatController
 
         // Get pet + cat info
         if ((int)$result['animaltypeid'] == 1) {
-            $sql = 'SELECT P.name, P.breed, P.gender, P.dateofbirth, P.weight, P.height, P.length, PC.declawed, PC.outdoor, PC.fixed FROM pet P INNER JOIN pet_cat PC ON PC.petid = P.petid WHERE P.petid = :petID;';
+            $sql = 'SELECT P.name, P.breed, P.gender, P.dateofbirth, P.weight, P.height, P.length, PC.declawed, PC.outdoor, PC.fixed, P.lastupdated FROM pet P INNER JOIN pet_cat PC ON PC.petid = P.petid WHERE P.petid = :petID;';
         }
         // Get generic pet info
         else {
-            $sql = 'SELECT name, breed, gender, dateofbirth, weight, height, length FROM pet WHERE petid = :petID;';
+            $sql = 'SELECT name, breed, gender, dateofbirth, weight, height, length, lastupdated FROM pet WHERE petid = :petID;';
         }
 
         $stmt = $this->app['db']->prepare($sql);
@@ -408,7 +408,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif ($this->CheckPetOwnership($petID,FALSE) != 3) {
+        elseif ($this->app['api.petservice']->CheckPetOwnership($petID,FALSE) != 3) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not found'
@@ -444,7 +444,7 @@ class FitCatController
         elseif (!is_int($petID)) {
             return JsonResponse::userError('Invalid petID');
         }
-        elseif ($this->CheckPetOwnership($petID,TRUE) != 3) {
+        elseif ($this->app['api.petservice']->CheckPetOwnership($petID,TRUE) != 3) {
             $body = array(
                 'success' => false,
                 'error' => 'Pet not found'
@@ -463,58 +463,6 @@ class FitCatController
         }
         else {
             return JsonResponse::serverError();
-        }
-
-    }
-
-    /**
-     * Function checks the ownership of a pet based on the current user
-     * returns 3 if owner, 2 if writeable access, 1 if read only, and false if not accessable.
-     * @param [int] $petID holds the id value of a pet.
-     * @param [bool] $fitcat holds a true or false value based on if the search should be limited to fitcats or not.
-     */
-    private function CheckPetOwnership($petID, $fitcat)
-    {
-        $addition = ' ';
-        if ($fitcat) {
-            $addition = " AND p.fitcat = true";
-        }
-
-        $user = $this->app['session']->get('user');
-
-        $sql = 'SELECT NULL FROM pet p WHERE p.petid = :petID AND p.ownerid = :userID'.$addition;
-        $stmt = $this->app['db']->prepare($sql);
-        $stmt->execute(array( 
-            ':petID' => $petID,
-            ':userID' => $user['userId']
-        ));
-
-        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        if ($result) {
-            return 3;
-        }
-        else {
-            $sql = 'SELECT a.access FROM accessibility a INNER JOIN pet p ON a.petid = p.petid WHERE a.petid = :petID AND a.userid = :userID'.$addition;
-            $stmt = $this->app['db']->prepare($sql);
-            $stmt->execute(array( 
-                ':petID' => $petID,
-                ':userID' => $user['userId']
-            ));
-            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-            //if a result is found deal with it accordingly otherwise return 0;
-            if ($result) {
-                if($result['access'] == 'write') {
-                    return 2;
-                }
-                else {
-                    return 1;
-                }
-            }
-            else {
-                return 0;
-            }
         }
     }
 }
