@@ -208,9 +208,10 @@ class PetRequestValidator
     public function ValidateUpdatePetRequest(Request $request)
     {
         $parameters = Array();
-        
+
         // Get parameters
         $petID = $request->request->get('petID');
+        $owner = $request->request->get('owner');
         $name = $request->request->get('name');
         $breed = $request->request->get('breed');
         $gender = $request->request->get('gender');
@@ -218,7 +219,9 @@ class PetRequestValidator
         $weight = $request->request->get('weight');
         $height = $request->request->get('height');
         $length = $request->request->get('length');
-        
+        $dateOfDeath = $request->request->get('dateOfDeath');
+        $reasonForDeath = $request->request->get('reasonForDeath');
+
         // Ensure we have a petID
         if (!$petID) {
             return new RequestValidationResult(false, null, JsonResponse::missingParam('petID'));
@@ -231,6 +234,25 @@ class PetRequestValidator
         }
 
         // Validate parameters (we only need at least one valid parameter for this request)
+        if (isset($owner)) {
+            if (filter_var($owner, FILTER_VALIDATE_EMAIL)) {
+              if (!is_null($this->app['api.auth']->GetUserIDByEmail($owner))) {
+                  $parameters['owner'] = $owner;
+              }
+              else {
+                $body = array(
+                    'success' => false,
+                    'error' => 'Owner not found'
+                );
+
+                return new RequestValidationResult(false, null, new JsonResponse($body, 400));
+              }
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid owner email'));
+            }
+        }
+
         if (isset($name)) {
             if (is_string($name) && !empty($name)) {
                 $parameters['name'] = $name;
@@ -294,6 +316,24 @@ class PetRequestValidator
             }
         }
 
+        if (isset($dateOfDeath)) {
+            if (DateTime::createFromFormat('Y-m-d', $dateOfDeath)) {
+                $parameters['dateOfDeath'] = $dateOfDeath;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid date of death'));
+            }
+        }
+
+        if (isset($reasonForDeath)) {
+            if (is_string($reasonForDeath) && !empty($reasonForDeath)) {
+                $parameters['reasonForDeath'] = $reasonForDeath;
+            }
+            else {
+                return new RequestValidationResult(false, null, JsonResponse::userError('Invalid reason for death'));
+            }
+        }
+
         // Check to see if cat specific parameters need to be validated
         if ($this->app['api.petservice']->GetAnimalTypeIDFromPet($petID) == 1) {
             $catValidationResult = $this->ValidateUpdatePetCatRequest($request);
@@ -310,8 +350,8 @@ class PetRequestValidator
             return new RequestValidationResult(true, $parameters);
         }
         else {
-            return new RequestValidationResult(false, null, JsonResponse::userError('At least one parameter must be set'));   
-        }        
+            return new RequestValidationResult(false, null, JsonResponse::userError('At least one parameter must be set'));
+        }
     }
 
     private function ValidateUpdatePetCatRequest(Request $request)
