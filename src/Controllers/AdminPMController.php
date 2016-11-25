@@ -36,7 +36,7 @@ class AdminPMController
     {
         $user = $this->app['session']->get('user');
 
-        //$ownerid = $request->request->get('');
+        $ownerEmail = $request->request->get('owner');
         $petName = $request->request->get('name');
         $dateOfBirth = $request->request->get('dateOfBirth');
         $weight = $request->request->get('weight');
@@ -47,7 +47,10 @@ class AdminPMController
         $gender = $request->request->get('gender');
 
         // Validate parameters
-        if (!$petName) {
+        if (!$ownerEmail) {
+            return JsonResponse::missingParam('owner');
+        }
+        elseif (!$petName) {
             return JsonResponse::missingParam('name');
         }
         elseif (!$breed) {
@@ -95,14 +98,22 @@ class AdminPMController
         elseif(!is_numeric($length)) {
             return JsonResponse::userError('length needs to be a number');
         }
+        elseif (!filter_var($ownerEmail, FILTER_VALIDATE_EMAIL)) {
+            return JsonResponse::userError('Invalid email');
+        }
+
+        $ownerID = $this->app['api.auth']->GetUserIDByEmail($ownerEmail);
+
+        if ($ownerID == null) {
+            return JsonResponse::userError('Email not found');
+        }
         
         // Add pet to database
-        $sql = 'INSERT INTO pet (ownerid, name, breed, gender, dateofbirth, weight, height, length)
-            VALUES (:ownerId, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length)';
+        $sql = 'INSERT INTO pet (ownerid, name, breed, gender, dateofbirth, weight, height, length) VALUES (:ownerID, :name, :breed, :gender, :dateOfBirth, :weight, :height, :length)';
 
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
-            ':ownerId' => $user['userId'],
+            ':ownerID' => $ownerID,
             ':name' => $petName,
             ':breed' => $breed,
             ':gender' => $gender,
@@ -117,8 +128,7 @@ class AdminPMController
             $petID = $this->app['db']->lastInsertId('pet_petid_seq');
 
             // Add cat to database
-            $sql = 'INSERT INTO pet_cat (petid, declawed, outdoor, fixed)
-                    VALUES (:petID, :declawed, :outdoor, :fixed)';
+            $sql = 'INSERT INTO pet_cat (petid, declawed, outdoor, fixed) VALUES (:petID, :declawed, :outdoor, :fixed)';
 
             $stmt = $this->app['db']->prepare($sql);
             $success = $stmt->execute(array(
@@ -129,7 +139,7 @@ class AdminPMController
             ));
 
             if ($success) {
-                return new JsonResponse();
+                return new JsonResponse(null,201);
             }
             else {
                 //TODO: Need to remove the pet if it fails to add it originally.
@@ -159,25 +169,23 @@ class AdminPMController
             return $validationResult->GetError();
         }
 
-        // Check to see if user already has accessibility with pet
-        $ownershipLevel = $this->app['api.petservice']->CheckPetOwnership($validationResult->GetParameter('petID'), false);
-        if ($ownershipLevel < 2) {
-            $body = array(
-                'success' => false,
-                'error' => 'Pet not found'
-            );
-
-            return new JsonResponse($body, 404);
-        }
 
         // Begin db transaction
         try {
             $this->app['db']->beginTransaction();
 
+            //attempts to get the pet type. If it cannot the pet desn't exist and an error is thrown.
+            $petType = $this->app['api.petservice']->GetAnimalTypeIDFromPet($validationResult->GetParameter('petID'));
+
             // Build sql statement
             $sql = 'UPDATE pet SET ';
 
             $sqlParameters = Array();
+
+            if ($validationResult->HasParameter('owner')) {
+                $sql = $sql . 'ownerid = :ownerID, ';
+                $sqlParameters['ownerID'] = $this->app['api.auth']->GetUserIDByEmail($validationResult->GetParameter('owner'));
+            }
 
             if ($validationResult->HasParameter('name')) {
                 $sql = $sql . 'name = :name, ';
@@ -209,13 +217,23 @@ class AdminPMController
                 $sqlParameters['length'] = $validationResult->GetParameter('length');
             }
 
+            if ($validationResult->HasParameter('dateOfDeath')) {
+                $sql = $sql . 'dateofdeath = :dateOfDeath, ';
+                $sqlParameters['dateOfDeath'] = $validationResult->GetParameter('dateOfDeath');
+            }
+
+            if ($validationResult->HasParameter('reasonForDeath')) {
+                $sql = $sql . 'reasonForDeath = :reasonForDeath, ';
+                $sqlParameters['reasonForDeath'] = $validationResult->GetParameter('reasonForDeath');
+            }
+
             if (count($sqlParameters) > 0) {
                 $sql = rtrim($sql, ", ") . ' WHERE petID = :petID';
                 $sqlParameters['petID'] = $validationResult->GetParameter('petID');
 
                 // Execute update
                 $stmt = $this->app['db']->prepare($sql);
-                $success = $stmt->execute($sqlParameters);            
+                $success = $stmt->execute($sqlParameters);
 
                 if (!$success) {
                     $this->app['db']->rollBack();
@@ -224,7 +242,7 @@ class AdminPMController
             }
 
             // Update cat specific parameters if necessary
-            if ($this->app['api.petservice']->GetAnimalTypeIDFromPet($validationResult->GetParameter('petID')) == 1) {
+            if ($petType == 1) {
                 $sql = 'UPDATE pet_cat SET ';
 
                 $sqlParameters = Array();
@@ -250,7 +268,7 @@ class AdminPMController
 
                     // Execute update
                     $stmt = $this->app['db']->prepare($sql);
-                    $success = $stmt->execute($sqlParameters);            
+                    $success = $stmt->execute($sqlParameters);
 
                     if (!$success) {
                         $this->app['db']->rollBack();

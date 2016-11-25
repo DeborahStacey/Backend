@@ -70,7 +70,7 @@ class AdminPMControllerProvider implements ControllerProviderInterface, ServiceP
         ;
 
         $controllers
-            ->post('/update', 'api.adminPM:UpdatePet')
+            ->put('/update', 'api.adminPM:UpdatePet')
             ->before($adminAuthenticate)
             ->before($userAuthenticate)
         ;
