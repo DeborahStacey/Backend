@@ -223,6 +223,7 @@ class FitCatController
     {
         $petID = $request->request->get('petID');
         $brand = $request->request->get('brand');
+        $name = $request->request->get('name');
         $amount = $request->request->get('amount');
         $description = $request->request->get('description');
         $date = $request->request->get('date');
@@ -233,6 +234,9 @@ class FitCatController
         }
         elseif (!$brand) {
             return JsonResponse::missingParam('brand');
+        }
+        elseif (!$name) {
+            return JsonResponse::missingParam('name');
         }
         elseif (!$amount) {
             return JsonResponse::missingParam('amount');
@@ -272,10 +276,10 @@ class FitCatController
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         
         if ($result) {
-            $sql = 'UPDATE fitcat SET foodconsumption = :amount, foodbrand = :brand, description = :description WHERE petid = :petID AND date = :date';
+            $sql = 'UPDATE fitcat SET foodconsumption = :amount, foodbrand = :brand, description = :description, name = :name WHERE petid = :petID AND date = :date';
         }
         else {      
-            $sql = 'INSERT INTO fitcat (petid, foodconsumption, foodbrand, description, date) VALUES (:petID, :amount, :brand, :description, :date)';
+            $sql = 'INSERT INTO fitcat (petid, foodconsumption, foodbrand, description, date) VALUES (:petID, :amount, :brand, :description, :name, :date)';
         }
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
@@ -283,6 +287,7 @@ class FitCatController
             ':amount' => $amount,
             ':brand' => $brand,
             ':description' => $description,
+            ':name' => $name,
             ':date' => $date
         ));
 
@@ -344,7 +349,7 @@ class FitCatController
         }
 
         
-        $sql = 'SELECT weight, steps, waterconsumption, foodconsumption, foodbrand, description, date FROM fitcat WHERE petid = :petID ORDER BY date DESC';
+        $sql = 'SELECT weight, steps, waterconsumption, foodconsumption, foodbrand, description, name, date FROM fitcat WHERE petid = :petID ORDER BY date DESC';
         $stmt = $this->app['db']->prepare($sql);
         $stmt->execute(array( 
             ':petID' => $petID
