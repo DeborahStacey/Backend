@@ -274,12 +274,12 @@ class FitCatController
         ));
 
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
+
         if ($result) {
             $sql = 'UPDATE fitcat SET foodconsumption = :amount, foodbrand = :brand, description = :description, name = :name WHERE petid = :petID AND date = :date';
         }
-        else {      
-            $sql = 'INSERT INTO fitcat (petid, foodconsumption, foodbrand, description, date) VALUES (:petID, :amount, :brand, :description, :name, :date)';
+        else {
+            $sql = 'INSERT INTO fitcat (petid, foodconsumption, foodbrand, description, name, date) VALUES (:petID, :amount, :brand, :description, :name, :date)';
         }
         $stmt = $this->app['db']->prepare($sql);
         $success = $stmt->execute(array(
