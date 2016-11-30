@@ -58,7 +58,7 @@ class AdminUserControllerProvider implements ControllerProviderInterface, Servic
         $controllers = $app['controllers_factory'];
 
         $controllers
-            ->get('/authenticate', 'api.adminUser:Authenticate')
+            ->get('/authenticated', 'api.adminUser:Authenticate')
             ->before($adminAuthenticate)
             ->before($userAuthenticate)
         ;

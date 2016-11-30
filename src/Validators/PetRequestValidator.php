@@ -112,7 +112,7 @@ class PetRequestValidator
         }
 
         // Validate animal specific parameters if necessary
-        if ((int)$animalID == 1) {
+        if ((int)$animalID == 1 && $success == true) {
             $catValidationResult = $this->ValidatePetCatCreationRequest($request);
 
             if (!$catValidationResult->GetSuccess()) {
